@@ -15,6 +15,7 @@ all: LIG_Tool util
 LIG_Tool:
 	cd $(LIGToolDir)&&make
 	mv ${LIGToolDir}$(LIGToolEXE) ../
+	rm -f ${LIGToolDir}/*.o
 
 util:
 	$(CXX) $(UTILS)Chemical_Component_Dictionary.cpp $(FLAG) -o Chemical_Component_Dictionary

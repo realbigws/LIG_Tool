@@ -5,7 +5,7 @@ OBJ = Utility.o Computation_Utility.o Confo_Back.o Confo_Beta.o Confo_Lett.o Acc
 
 make: $(OBJ)
 	${CXX} $(CCFLAGS)  -o LIG_Tool $(OBJ)
-	rm -f $(OBJ)
+#	rm -f $(OBJ)
 
 Utility.o  : Utility.h
 	${CXX} ${CCFLAGS} -c Utility.cpp
