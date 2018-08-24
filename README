@@ -1,0 +1,212 @@
+=================
+PDB_Tool (v4.80)
+date: 2018.05.20
+=================
+
+Title:
+PDB_Tool: a versatile tool to process PDB file
+
+Author: 
+Sheng Wang 
+
+Contact email: 
+realbigws@gmail.com 
+
+--------------------------------------------------------
+
+
+
+=========
+Abstract:
+=========
+
+1. Convert official PDB to compact form which only contains the necessary ATOM co-ordinate information.
+   e.g.,  ./PDB_Tool -i examples/1paz.pdb -r A -o 1pazA.pdb
+
+2. Extract structural features from input PDB file by '-F' option.
+   e.g.,  ./PDB_Tool -i examples/1paz.pdb -r A -o 1pazA.pdb -F 3
+
+3. Specify residue range by '-r' option, which could be applied to process SCOP domain.
+   e.g.,  ./PDB_Tool -i examples/2c2l.pdb -r A:24-224 -o d2c2la1.pdb
+
+4. Fix the missing main-chain and/or side-chain atoms by '-R 1' option.
+   e.g.,  ./PDB_Tool -i examples/1paz_caonly.pdb -R 1 -o 1pazA_fix.pdb 
+
+
+========
+Install:
+========
+
+1. download the package
+
+git clone --recursive https://github.com/realbigws/PDB_Tool
+cd PDB_Tool/
+
+--------------
+
+2. compile
+
+cd source_code/
+	make
+cd ../
+
+--------------
+
+3. update the package
+
+git pull
+git submodule foreach --recursive git pull origin master
+
+
+
+======
+Usage:
+======
+
+========================================================|
+PDB_Tool  (version 4.80) [2018.05.20]                   |
+          a versatile tool to process PDB file          |
+Usage:   ./PDB_Tool <-i input> <-r range> <-o output>   |
+Or,      ./PDB_Tool <-i inroot> <-L list> <-o outroot>  |
+--------------------------------------------------------|
+For <-i input> input type,                              |
+-i input  : input original PDB file, e.g., 1col.pdb     |
+-r range  : input residue range, e.g., A:1-51           |
+-o output : output PDB file, e.g., 1colA.pdb            |
+--------------------------------------------------------|
+For <-L list> input type,                               |
+-i inroot  : input directory of original PDBs           |
+-o outroot : output directory for generated PDBs        |
+The rows in <list> indicate [input range output]        |
+          e.g.,  1col.pdb A:1-51 1colA.pdb              |
+========================================================|
+                Primary options                         |
+--------------------------------------------------------|
+-M mode : Specify the atoms for output.                 |
+          -2,  output CA+CB                             |
+          -1,  output CA                                |
+           0,  output backbone+CB                       |
+          [1], output full atoms (Set as default)       |
+--------------------------------------------------------|
+-N num  : Specify the numbering type for output.        |
+          -1,  full sequential, for atom and residue    |
+           0,  part sequential, for atom only           |
+          [1], PDB numbering (Set as default)           |
+--------------------------------------------------------|
+                Additional options                      |
+--------------------------------------------------------|
+The following arguments for both input types            |
+        -C 1 to consider non-CA atoms                   |
+        -R 1 to reconstruct missing CB and backbone     |
+        -F 1 for AMI,CLE,SSE; 2 for ACC; 4 for FEAT     |
+           these output files could be combined         |
+           8 for output phi/psi/omega and theta/thor    |
+           9 for output Ca-Ca, Cb-Cb, and N-O distance  |
+The following arguments only for <-L list> input type   |
+        -G 1 to output three log files                  |
+========================================================|
+
+
+
+
+================
+Running example:
+================
+
+./PDB_Tool -i examples/1paz.pdb -r A -o 1pazA.pdb
+
+
+
+
+=================
+PDB_Tool options:
+=================
+
+---------------------------------------
+structural features output by -F option
+---------------------------------------
+
+(1) AMI (amino acid sequence)
+(2) CLE (conformational letter sequence in 17-state, defined according to [Wang & Zheng] )
+(3) SSE (secondary structure element sequence in 8-state, defined according to [Kabsch & Sander] )
+(4) ACC (relative solvent accessbility value calculated by [Kabsch & Sander], as well as the 3-state defined as [Ma & Wang] )
+(5) FEAT (structural features containing AMI,CLE,SSE,ACC,rACC; contact number with CA and CB; and co-ordinate of CA and CB )
+
+
+feature file example
+--------------------
+-F 1 to output AMI,CLE,SSE
+-F 2 to output ACC and rACC
+-F 4 to output FEAT     
+           
+Note that these output files could be combined, such as 
+-F 3 to output AMI,CLE,SSE, and ACC,rACC files
+-F 5 to output AMI,CLE,SSE, and FEAT files
+
+
+
+----------------------------------
+specify residue range by -r option
+----------------------------------
+
+symbol explanation:
+-------------------
+':' for PDB numbering, that the range is selected according to the residue number in the PDB file.
+'.' for SEQUENCE numbering, that the range is selected according to sequential order, starting from 1.
+'-' to indicate a certain beginning till the end.
+'+' to indicate a certain beginning followed by the length range.
+'@' to indicate the beginning or the ending of a certain chain.
+',' to seperate between two PDB chains.
+'!' to select all chains in the structure.
+'_' to use the first chain in the structure.
+
+
+example:   
+--------
+A:21-179,B.45-@
+
+
+description:
+------------
+Two segments from the input structure are selected.                             
+For chain A we select from residue 21 to residue 179 according to PDB numbering,
+whereas for chain B we select from position 45 to the end in sequential order.  
+--------------------------------------------------------------------------------
+
+Note that the range symbol definition above is compatible with SCOP. 
+    Then PDB_Tool could be applied to process SCOP domain defined as [Brenner et.al], for instance,
+
+SCOP domain:
+    d2c2la1 a.118.8.1 (A:24-224)
+range process:
+    ./PDB_Tool -i 2c2l.pdb -r A:24-224 -o d2c2la1.pdb
+
+
+
+
+
+===========
+References:
+===========
+
+[Wang & Zheng]: CLePAPS: fast pair alignment of protein structures based on conformational letters
+      Sheng Wang and Wei-mou Zheng
+      J Bioinform Comput Biol. 2008 Apr;6(2):347-66.
+      http://www.ncbi.nlm.nih.gov/pubmed/18464327
+
+[Kabsch & Sander]: Dictionary of protein secondary structure: pattern recognition of hydrogen-bonded and geometrical features
+      Kabsch W, Sander C.
+      Biopolymers. 1983 Dec;22(12):2577-637.
+      http://onlinelibrary.wiley.com/doi/10.1002/bip.360221211/abstract
+
+[Ma & Wang]: AcconPred: Predicting Solvent Accessibility and Contact Number Simultaneously by a Multitask Learning Framework under the Conditional Neural Fields Model
+      Jianzhu Ma and Sheng Wang
+      BioMed Research International. 2015 
+      http://www.hindawi.com/journals/bmri/aa/678764/
+
+[Brenner et.al]: The ASTRAL compendium for protein structure and sequence analysis
+      Steven E. Brenner,a Patrice Koehl, and Michael Levitt
+      Nucleic Acids Res. 2000 Jan 1; 28(1): 254-256.
+      http://nar.oxfordjournals.org/content/28/1/254.abstract
+
+
