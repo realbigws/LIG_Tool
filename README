@@ -22,7 +22,7 @@ Install:
 
 1. download the package
 
-git clone --recursive https://github.com/realbigws/LIG_Tool
+git clone https://github.com/realbigws/LIG_Tool
 cd LIG_Tool/
 
 --------------
@@ -38,7 +38,6 @@ cd ../
 3. update the package
 
 git pull
-git submodule foreach --recursive git pull origin master
 
 
 --------------
