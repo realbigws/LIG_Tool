@@ -618,7 +618,7 @@ void Residue_Ligand_Distance_PC(PDB_Residue & PDB, vector <Ligand_Struc> &ligand
 		char retl='X';
 		for(i=0;i<(int)ligands.size();i++)
 		{
-			for(j=0;j<(int)ligands[i].lig_xyz.size();i++)
+			for(j=0;j<(int)ligands[i].lig_xyz.size();j++)
 			{
 				dist2=ligands[i].lig_xyz[j].distance_square(xyz);
 				if(dist2<thres2)
@@ -651,7 +651,7 @@ void Residue_Ligand_Distance_PC(PDB_Residue & PDB, vector <Ligand_Struc> &ligand
 		char retl='X';
 		for(i=0;i<(int)ligands.size();i++)
 		{
-			for(j=0;j<(int)ligands[i].lig_xyz.size();i++)
+			for(j=0;j<(int)ligands[i].lig_xyz.size();j++)
 			{
 				dist2=ligands[i].lig_xyz[j].distance_square(xyz);
 				if(dist2<thres2)
@@ -683,7 +683,7 @@ void Residue_Ligand_PC(vector <PDB_Residue> &chain, vector <Ligand_Struc> &ligan
 }
 
 //-> filter point-cloud
-void Residue_Ligand_Distance_PC(int type,
+void Filter_PointCloud(int type,
 	vector <XYZ> &pc_in, vector <string> &atom_in, vector <char> &resi_in, vector <char> &label_in,
 	vector <XYZ> &pc_out, vector <string> &atom_out, vector <char> &resi_out, vector <char> &label_out)
 {
@@ -1061,7 +1061,7 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			vector <string> atom_out;
 			vector <char> resi_out;
 			vector <char> label_out;
-			Residue_Ligand_Distance_PC(PC_TYPE,pc_in,atom_in,resi_in,label_in,
+			Filter_PointCloud(PC_TYPE,pc_in,atom_in,resi_in,label_in,
 				pc_out,atom_out,resi_out,label_out);
 			//output point-cloud to file
 			cur_nam=out_name+chain; 
