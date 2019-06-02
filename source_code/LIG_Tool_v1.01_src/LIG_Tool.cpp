@@ -8,6 +8,7 @@
 #include "Mol_Out.h"
 #include "getopt.h"
 #include "Ligand_Utility.h"
+#include "PDB_Utility.h"
 using namespace std;
 
 
@@ -16,11 +17,12 @@ using namespace std;
 void print_help_msg(void) 
 {
 	cout << "========================================================|" << endl;
-	cout << "LIG_Tool  (version 1.01) [2015.02.20]                   |" << endl;
+	cout << "LIG_Tool  (version 1.02) [2019.06.02]                   |" << endl;
 	cout << "    Extract ligands and chains from official PDB file   |" << endl;
 	cout << "Usage:   ./LIG_Tool <-i input_pdb> [-o out_name]        |" << endl;
 	cout << "         [-p chain_out_root] [-q ligand_out_root]       |" << endl;
 	cout << "         [-n length_cut] [-d distance_cut] [-l log]     |" << endl;
+	cout << "         [-O PC_out] [-T PC_type]                       |" << endl;
 	cout << "--------------------------------------------------------|" << endl;
 	cout << "-i input_pdb : input original PDB file, e.g., 1col.pdb  |" << endl;
 	cout << "-o out_name  : output file name. [default: input_name]  |" << endl;
@@ -29,6 +31,8 @@ void print_help_msg(void)
 	cout << "-n length_cut : chain length cutoff [default: 25 ]      |" << endl;
 	cout << "-d distance_cut : ligand distance cutoff [default: 4.0] |" << endl;
 	cout << "-l log : output log files (1) or not (0) [default: 0]   |" << endl;
+	cout << "-O PC_root : binding residues in PC [default:null]      |" << endl;
+	cout << "-T PC_type : CA+CB (-1), backbone+CB [0], full atom (1) |" << endl;
 	cout << "========================================================|" << endl;
 	exit(-1);
 }
@@ -39,7 +43,9 @@ string CHAIN_OUTROOT="./";  //chain output root
 string LIGAND_OUTROOT="./"; //ligand output root
 int LENGTH_CUT=25;          //chain length cutoff
 double DISTANCE_CUT=4.0;    //ligand distance cutoff
-int LOG_OR_NOT=0; //default: don't output log
+int LOG_OR_NOT=0;           //default: don't output log
+string PC_ROOT="";          //point cloud output root
+int PC_TYPE=0;              //default: backbone+CB
 
 //-----------------------------------------------------------------------------------------------------------//
 //---- parameter editor ----//
@@ -52,6 +58,8 @@ static option long_options[] =
 	{"length",  no_argument,       NULL, 'n'},
 	{"dist",    no_argument,       NULL, 'd'},
 	{"log",     no_argument,       NULL, 'l'},
+	{"PCroot",  no_argument,       NULL, 'O'},
+	{"PCtype",  no_argument,       NULL, 'T'},
 	{0, 0, 0, 0}
 };
 //-----------------------------------------------------------------------------------------------------------//
@@ -64,7 +72,7 @@ void process_args(int argc,char** argv)
 	while(true) 
 	{
 		int option_index=0;
-		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:",
+		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:",
 			   long_options,&option_index);
 		if (opt==-1)break;	
 		switch(opt) 
@@ -90,6 +98,12 @@ void process_args(int argc,char** argv)
 			case 'l':
 				LOG_OR_NOT=atoi(optarg);
 				break;
+			case 'O':
+				PC_ROOT=optarg;
+				break;
+			case 'T':
+				PC_TYPE=atoi(optarg);
+				break;
 			default:
 				exit(-1);
 		}
@@ -100,6 +114,7 @@ void process_args(int argc,char** argv)
 struct Ligand_Struc
 {
 	string lig_name;
+	string lig_type;
 	int lig_moln;
 	vector <XYZ> lig_xyz;
 	vector <string> lig_data;
@@ -453,11 +468,19 @@ int PDB_Extract_Ligand(string &pdb,vector <Ligand_Struc> &output)
 			for(k=0;k<(int)strlen(command);k++)if(command[k]==' ')command[k]='_';
 			string name_tmp=command;
 			string name=ws_mapp_nam[i]+"_"+name_tmp;
+			//get type
+			string wsss=ws_mapp_nam[i];
+			for(k=0;k<3;k++)if(wsss[k]=='_')wsss[k]=' ';
+			int result=0;
+			for(k=0;k<3;k++)result+=(WS_Ligand_Trans(wsss[k]))*(int)pow(37.0,1.0*k);
+			int retv=WS_Ligand_Num_Code(result);
+			const char *ligtype=WS_Ligand_CAMEO(retv);
 			//assign
 			vector <XYZ> xyz_tmp;
 			int moln=Ligand_String_To_XYZ(ws_mapp_string[i][j],xyz_tmp);
 			Ligand_Struc ligand_struc;
 			ligand_struc.lig_name=name;
+			ligand_struc.lig_type=ligtype;
 			ligand_struc.lig_moln=moln;
 			ligand_struc.lig_xyz=xyz_tmp;
 			ligand_struc.lig_data=ws_mapp_string[i][j];
@@ -565,7 +588,158 @@ int Compare_Ligand_and_Chain_Complex(vector <PDB_Residue> &protein, vector <XYZ>
 }
 
 
-//-> reconstruct missing heavy-atom
+//================= for Point-Cloud ===================//__190602__//
+//-> record point-cloud
+void Residue_Ligand_Distance_PC(PDB_Residue & PDB, vector <Ligand_Struc> &ligands, 
+	double r_cut, vector <XYZ> &pc, vector <string> &atom, vector <char> &resi, vector <char> &label)
+{
+	int i,j,k;
+	int number;
+	double dist2;
+	double thres2=r_cut*r_cut;
+	//get amino
+	char amino=PDB.get_AA();
+	//get_backbone
+	number=PDB.get_backbone_totnum();
+	for(k=0;k<number;k++)
+	{
+		//get backbone atom
+		if(PDB.get_backbone_part_index(k)==0)continue;
+		XYZ xyz;
+		PDB.get_backbone_atom(k,xyz);
+		const char *atomname=backbone_atom_name_decode(k);
+		string atom_name=atomname;
+		//record as point-cloud
+		pc.push_back(xyz);
+		atom.push_back(atom_name);
+		resi.push_back(amino);
+		//calculate distance
+		int retv=0;
+		char retl='X';
+		for(i=0;i<(int)ligands.size();i++)
+		{
+			for(j=0;j<(int)ligands[i].lig_xyz.size();i++)
+			{
+				dist2=ligands[i].lig_xyz[j].distance_square(xyz);
+				if(dist2<thres2)
+				{
+					retv=1;
+					retl=ligands[i].lig_type[0];
+					break;
+				}
+			}
+		}
+		if(retv==1)label.push_back(retl);
+		else label.push_back('0');
+	}
+	//get_sidechain
+	number=PDB.get_sidechain_totnum();
+	for(k=0;k<number;k++)
+	{
+		//get backbone atom
+		if(PDB.get_sidechain_part_index(k)==0)continue;
+		XYZ xyz;
+		PDB.get_sidechain_atom(k,xyz);
+		const char *atomname=sidechain_atom_name_decode(k,amino);
+		string atom_name=atomname;
+		//record as point-cloud
+		pc.push_back(xyz);
+		atom.push_back(atom_name);
+		resi.push_back(amino);
+		//calculate distance
+		int retv=0;
+		char retl='X';
+		for(i=0;i<(int)ligands.size();i++)
+		{
+			for(j=0;j<(int)ligands[i].lig_xyz.size();i++)
+			{
+				dist2=ligands[i].lig_xyz[j].distance_square(xyz);
+				if(dist2<thres2)
+				{
+					retv=1;
+					retl=ligands[i].lig_type[0];
+					break;
+				}
+			}
+		}
+		if(retv==1)label.push_back(retl);
+		else label.push_back('0');
+	}
+}
+
+//-> extract ALL residues
+void Residue_Ligand_PC(vector <PDB_Residue> &chain, vector <Ligand_Struc> &ligands, 
+	double r_cut, vector <XYZ> &pc, vector <string> &atom, vector <char> &resi, vector <char> &label)
+{
+	pc.clear();
+	atom.clear();
+	resi.clear();
+	label.clear();
+	int number=(int)chain.size();
+	for(int i=0;i<number;i++)
+	{
+		Residue_Ligand_Distance_PC(chain[i],ligands,r_cut,pc,atom,resi,label);
+	}
+}
+
+//-> filter point-cloud
+void Residue_Ligand_Distance_PC(int type,
+	vector <XYZ> &pc_in, vector <string> &atom_in, vector <char> &resi_in, vector <char> &label_in,
+	vector <XYZ> &pc_out, vector <string> &atom_out, vector <char> &resi_out, vector <char> &label_out)
+{
+	pc_out.clear();
+	atom_out.clear();
+	resi_out.clear();
+	label_out.clear();
+	long number=(long)pc_in.size();
+	for(long i=0;i<number;i++)
+	{
+		//get atom_name
+		string atom_name=atom_in[i];
+		//judge type
+		if(type<0) //-> CA+CB
+		{
+			if(atom_name=="CA " || atom_name=="CB ")
+			{
+				pc_out.push_back(pc_in[i]);
+				atom_out.push_back(atom_in[i]);
+				resi_out.push_back(resi_in[i]);
+				label_out.push_back(label_in[i]);
+			}
+		}
+		else if(type==0) //-> backbone+CB
+		{
+			if(atom_name=="N  " || atom_name=="CA " || atom_name=="C  " || atom_name=="O  " || atom_name=="CB ")
+			{
+				pc_out.push_back(pc_in[i]);
+				atom_out.push_back(atom_in[i]);
+				resi_out.push_back(resi_in[i]);
+				label_out.push_back(label_in[i]);
+			}
+		}
+		else
+		{
+			pc_out.push_back(pc_in[i]);
+			atom_out.push_back(atom_in[i]);
+			resi_out.push_back(resi_in[i]);
+			label_out.push_back(label_in[i]);
+		}
+	}
+}
+
+//-> output PC to file
+void Output_File_PC(FILE *fp,
+	vector <XYZ> &pc, vector <string> &atom, vector <char> &resi, vector <char> &label)
+{
+	for(long i=0;i<(long)pc.size();i++)
+	{
+		fprintf(fp,"%c%c %8.3f %8.3f %8.3f %c\n",
+			resi[i],atom[i][0],pc[i].X,pc[i].Y,pc[i].Z,label[i]);
+	}
+}
+
+
+//---------------------- reconstruct missing heavy-atom --------------------------//
 int Reconstruct_Missing(vector <PDB_Residue> &pdb)
 {
 	//init check
@@ -701,7 +875,8 @@ int PDB_Residue_To_XYZ_Total(vector <PDB_Residue> &pdb, vector <XYZ> &output)
 //[note]: len_cut -> for pdb_chain
 //        r_cut   -> for ligand
 int PDB_Ligand_All_Process(string &file,string &out_name,
-	string &pdb_out_dir,string &ligand_out_dir,int len_cut,double r_cut)
+	string &pdb_out_dir,string &ligand_out_dir,string &pc_out_dir,
+	int len_cut,double r_cut)
 {
 	//class
 	Mol_File mol_input;
@@ -856,6 +1031,47 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			fclose(f5);
 		}
 	}
+
+	//================= record binding residues in Point-Cloud ==================//__190602__//
+	if(pc_out_dir!="")
+	{
+		for(i=0;i<chain_size;i++)
+		{
+			//read
+			pdb_chain=chains[i];
+			moln=pdb_chain.get_length();
+			chain=pdb_chain.get_chain_id();
+			//length check
+			if(moln<len_cut)continue;
+			//assign
+			pdb.resize(moln);
+			for(k=0;k<moln;k++)
+			{
+				pdb_chain.get_residue(k,residue);
+				pdb[k]=residue;
+			}
+			//calculate point-cloud
+			vector <XYZ> pc_in;
+			vector <string> atom_in;
+			vector <char> resi_in;
+			vector <char> label_in;
+			Residue_Ligand_PC(pdb,ligands,r_cut,pc_in,atom_in,resi_in,label_in);
+			//filter point-cloud according to type
+			vector <XYZ> pc_out;
+			vector <string> atom_out;
+			vector <char> resi_out;
+			vector <char> label_out;
+			Residue_Ligand_Distance_PC(PC_TYPE,pc_in,atom_in,resi_in,label_in,
+				pc_out,atom_out,resi_out,label_out);
+			//output point-cloud to file
+			cur_nam=out_name+chain; 
+			outname=pc_out_dir+"/"+cur_nam+".pc_xyz";
+			fp=fopen(outname.c_str(),"wb");
+			Output_File_PC(fp,pc_out,atom_out,resi_out,label_out);
+			fclose(fp);
+		}
+	}
+
 	return 1; //success
 }
 
@@ -890,21 +1106,35 @@ int main(int argc, char** argv)
 			fprintf(stderr,"-l LOG_OR_NOT %d should be 0 or 1 \n",LOG_OR_NOT);
 			exit(-1);
 		}
+		if(PC_TYPE<-1 || PC_TYPE>1)
+		{
+			fprintf(stderr,"-T PC_TYPE %d should be -1,0,1 \n",PC_TYPE);
+			exit(-1);
+		}
 		//assign
 		string input_pdb=INPUT_FILE;
 		string out_name=OUTPUT_NAME;
 		string pdb_out_root=CHAIN_OUTROOT;
 		string ligand_out_root=LIGAND_OUTROOT;
+		string point_cloud_root=PC_ROOT;
 		//create output
 		char command[30000];
 		sprintf(command,"mkdir -p %s",pdb_out_root.c_str());
 		system(command);
 		sprintf(command,"mkdir -p %s",ligand_out_root.c_str());
 		system(command);
+		if(point_cloud_root!="")
+		{
+			sprintf(command,"mkdir -p %s",point_cloud_root.c_str());
+			system(command);
+		}
 		//process
 		int len_cut=LENGTH_CUT;
 		double distance_cut=DISTANCE_CUT;
-		PDB_Ligand_All_Process(input_pdb,out_name,pdb_out_root,ligand_out_root,len_cut,distance_cut);
+		PDB_Ligand_All_Process(input_pdb,out_name,pdb_out_root,ligand_out_root,point_cloud_root,
+			len_cut,distance_cut);
 		exit(0);
 	}
 }
+
+
