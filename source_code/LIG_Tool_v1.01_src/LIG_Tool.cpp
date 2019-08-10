@@ -782,6 +782,8 @@ void Filter_PointCloud(int type,
 		}
 		else
 		{
+			//--- filter out CB in glycine ---//
+			if(resi_in[i]=='G' && atom_name=="CB ")continue;
 			pc_out.push_back(pc_in[i]);
 			atom_out.push_back(atom_in[i]);
 			posi_out.push_back(posi_in[i]);
@@ -1212,5 +1214,6 @@ int main(int argc, char** argv)
 		exit(0);
 	}
 }
+
 
 
