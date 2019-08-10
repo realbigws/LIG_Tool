@@ -526,8 +526,23 @@ double Residue_Ligand_Distance(PDB_Residue & PDB, vector <XYZ> &ligand)
 	XYZ xyz;
 	double dist2;
 	double minval=99999;
-	number=PDB.get_sidechain_totnum();
 	totnum=(int)ligand.size();
+	//backbone
+	number=PDB.get_backbone_totnum();
+	for(k=0;k<number;k++)
+	{
+		//get_backbone
+		if(PDB.get_backbone_part_index(k)==0)continue;
+		PDB.get_backbone_atom(k,xyz);
+		//calculate distance
+		for(i=0;i<totnum;i++)
+		{
+			dist2=ligand[i].distance_square(xyz);
+			if(dist2<minval)minval=dist2;
+		}
+	}
+	//sidechain
+	number=PDB.get_sidechain_totnum();
 	for(k=0;k<number;k++)
 	{
 		//get_sidechain
@@ -1197,6 +1212,5 @@ int main(int argc, char** argv)
 		exit(0);
 	}
 }
-
 
 
