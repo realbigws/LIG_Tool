@@ -196,9 +196,9 @@ void Confo_Beta::Confo_Beta_Levit_To_CACB(XYZ *CA,XYZ *CB,int moln,double *dist)
 	}
 }
 
-//===================== WS_Recon_Beta ==================//
+//===================== Recon_Beta ==================//
 //given CA+CB, and AMI_Dist, update SC
-void Confo_Beta::WS_Recon_Beta_1(XYZ *CA,XYZ *CB,int moln,char *ami)  //return SC
+void Confo_Beta::Recon_Beta_1(XYZ *CA,XYZ *CB,int moln,char *ami)  //return SC
 {
 	int i;
 	XYZ xyz;
@@ -220,7 +220,7 @@ void Confo_Beta::WS_Recon_Beta_1(XYZ *CA,XYZ *CB,int moln,char *ami)  //return S
 	}
 }
 //given CA, return CB (Levitt)
-void Confo_Beta::WS_Recon_Beta_31(XYZ *CA,XYZ *CB,int moln,char *ami)  //return CB
+void Confo_Beta::Recon_Beta_31(XYZ *CA,XYZ *CB,int moln,char *ami)  //return CB
 {
 	int i;
 	if(moln<=0)return;
@@ -234,7 +234,7 @@ void Confo_Beta::WS_Recon_Beta_31(XYZ *CA,XYZ *CB,int moln,char *ami)  //return 
 	//process
 	Confo_Beta_Levit_To_CACB(CA,CB,moln,beta_dist);
 }
-void Confo_Beta::WS_Recon_Beta_32(XYZ *CA,XYZ *CB,int moln,char *ami)  //return SC
+void Confo_Beta::Recon_Beta_32(XYZ *CA,XYZ *CB,int moln,char *ami)  //return SC
 {
 	int i;
 	double value;
@@ -251,7 +251,7 @@ void Confo_Beta::WS_Recon_Beta_32(XYZ *CA,XYZ *CB,int moln,char *ami)  //return 
 	Confo_Beta_Levit_To_CACB(CA,CB,moln,beta_dist);
 }
 //given CA, and CLE_Type, return CB (Liu & Wang)
-void Confo_Beta::WS_Recon_Beta_21(XYZ *CA,XYZ *CB,int moln,char *ami,char *cle)  //recon CB
+void Confo_Beta::Recon_Beta_21(XYZ *CA,XYZ *CB,int moln,char *ami,char *cle)  //recon CB
 {
 	int i;
 	char code;
@@ -271,7 +271,7 @@ void Confo_Beta::WS_Recon_Beta_21(XYZ *CA,XYZ *CB,int moln,char *ami,char *cle) 
 	//process
 	Confo_Beta_Angle_To_CACB(CA,CB,moln,beta_bend,beta_tort,beta_dist);
 }
-void Confo_Beta::WS_Recon_Beta_22(XYZ *CA,XYZ *CB,int moln,char *ami,char *cle)  //recon SC
+void Confo_Beta::Recon_Beta_22(XYZ *CA,XYZ *CB,int moln,char *ami,char *cle)  //recon SC
 {
 	int i;
 	char code;

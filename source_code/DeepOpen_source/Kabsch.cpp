@@ -73,7 +73,7 @@ double Kabsch::kabsch_base(double r[3][3],XYZ xc_,XYZ yc_,double *rotmat_)
 		nroots=eigen_values_comp(r,kabsch_rr,kabsch_mu,rotmat_);
 	}
 
-	//---WS_Get_Mu--//__080815__//
+	//---Get_Mu--//__080815__//
 	if(Matrix_Determinant(r)>0.0)tag=1;
 	else tag=0;
 

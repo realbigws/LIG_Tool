@@ -310,7 +310,7 @@ int MultiAlign_Cent::BC_Update_Consen_Given_Ali_Fixed(XYZ **in,int totnum,int to
 			}
 		}
 		//assign
-		if(count>cutoff) //__modified by WS__//__110230__//
+		if(count>cutoff) //__modified at//__110230__//
 		{
 			temp/=count;
 			consen[cur]=temp;
@@ -672,7 +672,7 @@ int MultiAlign_Cent::BC_Update_Ali_Gigen_Consen(XYZ **in,int *len,int totnum,int
 	return Single_Ali_To_Multi_Ali(totnum,len,conlen,BC_Ali2_Refine,aliout);
 }
 
-//--------------- WS_Update_Partial_CORE -------------//__110115__//
+//--------------- Update_Partial_CORE -------------//__110115__//
 void MultiAlign_Cent::BC_Update_Partial_CORE_Single(XYZ **in,int *len,int totnum,int **alin,int totin,int **aliout,int &totout)
 {
 	int j,k;

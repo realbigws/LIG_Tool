@@ -83,9 +83,9 @@ void ZoomIn_Align::ZM_Input_Mol(XYZ *m1,XYZ *m2,int n1,int n2)
 	EqualArray(mol2,m2,n2);
 	moln1=n1;
 	moln2=n2;
-	WS_CLeFAPS_Init();
+	CLeFAPS_Init();
 }
-void ZoomIn_Align::WS_CLeFAPS_Init(void)
+void ZoomIn_Align::CLeFAPS_Init(void)
 {
 	//STEP[0] initialization
 	int mol_len=moln1<=moln2?moln1:moln2;   //smaller_length
@@ -521,7 +521,7 @@ int ZoomIn_Align::Possessed_Check(int ii,int jj,int winlen,vector <int> &alignme
 //SFP_L -> Similar_Fragment_Pair low-valued list
 //[output]
 //ali2 -> the final returned alignment
-double ZoomIn_Align::WS_CLeFAPS_Part(XYZ *m1,XYZ *m2,int n1,int n2,double *rotmat_,vector <SFP_Record> &SFP_Low,int *ali2_)
+double ZoomIn_Align::CLeFAPS_Part(XYZ *m1,XYZ *m2,int n1,int n2,double *rotmat_,vector <SFP_Record> &SFP_Low,int *ali2_)
 {
 	//judge
 	int i;
@@ -576,7 +576,7 @@ double ZoomIn_Align::WS_CLeFAPS_Part(XYZ *m1,XYZ *m2,int n1,int n2,double *rotma
 //SFP_L -> Similar_Fragment_Pair low-valued list
 //[output]
 //ali2 -> the final returned alignment
-double ZoomIn_Align::WS_CLeFAPS_Full(XYZ *m1,XYZ *m2,int n1,int n2,vector <SFP_Record> &SFP_High,vector <SFP_Record> &SFP_Low,
+double ZoomIn_Align::CLeFAPS_Full(XYZ *m1,XYZ *m2,int n1,int n2,vector <SFP_Record> &SFP_High,vector <SFP_Record> &SFP_Low,
 									 int *ali2_,int *ali2_comp)
 {
 	int i,j;
@@ -624,7 +624,7 @@ double ZoomIn_Align::WS_CLeFAPS_Full(XYZ *m1,XYZ *m2,int n1,int n2,vector <SFP_R
 		}
 		//CLEFAPS_Part
 		EqualArray(rot_mat,center_mat+12*index,12);
-		TM_CUR=WS_CLeFAPS_Part(m1,m2,n1,n2,rot_mat,SFP_Low,ZM_BEST_ALI);
+		TM_CUR=CLeFAPS_Part(m1,m2,n1,n2,rot_mat,SFP_Low,ZM_BEST_ALI);
 		score=TM_CUR;
 		if(HEAD_Chk==1)
 		{

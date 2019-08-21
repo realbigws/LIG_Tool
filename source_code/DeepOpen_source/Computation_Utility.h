@@ -12,6 +12,13 @@ using namespace std;
 //#define DEBUG     //now is DEBUG situation
 //-------------------------------------//
 
+//=========== maximal protein length ========//
+#ifndef PROT_MAX_NUM
+#define PROT_MAX_NUM 5000
+#endif
+//===========================================//
+
+
 //=========== ERROR_TAG ============//
 #define STR_TRANS_ERROR -400  //this error occurs when input string cannot transform to [int] or [double]
 #define FILE_LOAD_ERROR -999  //this error occurs when input file cannot open (file not found)

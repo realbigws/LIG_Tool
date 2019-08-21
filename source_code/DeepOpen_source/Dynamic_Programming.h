@@ -12,9 +12,8 @@
 using namespace std;
 
 //--- utility ---//
-//#define DYNA_PROG_MAXIMAL 100000000  //10000*10000
-#define DYNA_PROG_MAXIMAL 25000000  //5000*5000
-#define DYNA_PROG_LENGTH 10000      //5000*2
+#define DYNA_PROG_MAXIMAL 25000000   //5000*5000
+#define DYNA_PROG_LENGTH  10000      //5000*2
 extern int DP_align1[DYNA_PROG_LENGTH];
 extern int DP_align2[DYNA_PROG_LENGTH];
 

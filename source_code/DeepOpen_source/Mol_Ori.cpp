@@ -17,7 +17,7 @@ Mol_Ori::Mol_Ori(void)
 	//memory limit
 	PRE_LOAD=0;
 	WARNING_out=1;
-	MEMORY_LIMIT=3000;
+	MEMORY_LIMIT=PROT_MAX_NUM;
 }
 Mol_Ori::~Mol_Ori(void)
 {

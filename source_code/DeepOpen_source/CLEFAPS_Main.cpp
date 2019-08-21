@@ -271,9 +271,9 @@ int CLEFAPS_Main::Alignment_Gap_Process(int *ali2_in,int moln1,int moln2,int *al
 }
 
 
-//---------- ws_post_refine ----------//__110830__//
+//---------- post_refine ----------//__110830__//
 //to kill gaps!!
-double CLEFAPS_Main::WS_Calc_Frag_Score(int ii,int jj,int *ali1,int *ali2,
+double CLEFAPS_Main::IN_Calc_Frag_Score(int ii,int jj,int *ali1,int *ali2,
 					int moln1,int moln2,XYZ *mol1,XYZ *mol2,double *rotmat_)
 {
 	//-2,+1
@@ -343,7 +343,7 @@ double CLEFAPS_Main::WS_Calc_Frag_Score(int ii,int jj,int *ali1,int *ali2,
 	}
 	return ws_sco;
 }
-int CLEFAPS_Main::WS_Ali_To_Cor(int *AFP_Cor,int thres,
+int CLEFAPS_Main::IN_Ali_To_Cor(int *AFP_Cor,int thres,
 						int moln1,int moln2,int *ali1,int *ali2,
 						vector<pair<int,int> > &ws_pair_record) 
 {
@@ -457,7 +457,7 @@ ws_end:
 end:
 	return num;
 }
-void CLEFAPS_Main::WS_Elongation(double *rotmat_,double thres,int cutoff,int *ali1,int *ali2,
+void CLEFAPS_Main::IN_Elongation(double *rotmat_,double thres,int cutoff,int *ali1,int *ali2,
 						 XYZ *mol1,XYZ *mol2,int moln1,int moln2)
 {
 	int i;
@@ -655,9 +655,9 @@ void CLEFAPS_Main::FM_Align_Refine(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int *
 	}
 	//kill gaps
 	vector<pair<int,int> > ws_pair_record;
-	WS_Ali_To_Cor(AFP_Cor,CLEP_MIN_LEN,moln1,moln2,wsali1,wsali2,ws_pair_record);
+	IN_Ali_To_Cor(AFP_Cor,CLEP_MIN_LEN,moln1,moln2,wsali1,wsali2,ws_pair_record);
 	//refine iteration
-	WS_Elongation(rotmat_,FIN_CUT,ANG_CUT,wsali1,wsali2,mol1,mol2,moln1,moln2);
+	IN_Elongation(rotmat_,FIN_CUT,ANG_CUT,wsali1,wsali2,mol1,mol2,moln1,moln2);
 	//final add
 	int size=(int)ws_pair_record.size();
 	Fast_Sort<double> ws_fast_sort_double;
@@ -668,7 +668,7 @@ void CLEFAPS_Main::FM_Align_Refine(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int *
 	{
 		ii=ws_pair_record[i].first;
 		jj=ws_pair_record[i].second;
-		ws_rec[i]=WS_Calc_Frag_Score(ii,jj,wsali1,wsali2,moln1,moln2,mol1,mol2,rotmat_);
+		ws_rec[i]=IN_Calc_Frag_Score(ii,jj,wsali1,wsali2,moln1,moln2,mol1,mol2,rotmat_);
 	}
 	ws_fast_sort_double.fast_sort_1(ws_rec,ws_idx,size);
 	//final check
@@ -708,7 +708,7 @@ void CLEFAPS_Main::FM_Align_Refine(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int *
 		}
 	}
 	//refine iteration
-	WS_Elongation(rotmat_,FIN_CUT,ANG_CUT,wsali1,wsali2,mol1,mol2,moln1,moln2);
+	IN_Elongation(rotmat_,FIN_CUT,ANG_CUT,wsali1,wsali2,mol1,mol2,moln1,moln2);
 	//evaluate
 	for(i=0;i<moln2;i++)ali2_out[i]=-1;
 	for(i=0;i<moln2;i++)
@@ -723,8 +723,8 @@ void CLEFAPS_Main::FM_Align_Refine(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int *
 	delete [] ws_idx;
 }
 
-//==================== WS_Gap_Kill ================//
-void CLEFAPS_Main::WS_Retreive_Alignment(char *out1,char *out2,int *ali2_,int moln2)
+//==================== Gap_Kill ================//
+void CLEFAPS_Main::Retreive_Alignment(char *out1,char *out2,int *ali2_,int moln2)
 {
 	//final retrieve
 	int i;
@@ -747,7 +747,7 @@ void CLEFAPS_Main::WS_Retreive_Alignment(char *out1,char *out2,int *ali2_,int mo
 		}
 	}
 }
-void CLEFAPS_Main::WS_Transform_Ali(int *ali1,int *ali2,int moln1,int moln2,char *ami1,char *ami2,char *out1,char *out2)
+void CLEFAPS_Main::Transform_Ali(int *ali1,int *ali2,int moln1,int moln2,char *ami1,char *ami2,char *out1,char *out2)
 {
 	//start
 	int i,j;
@@ -833,7 +833,7 @@ void CLEFAPS_Main::WS_Transform_Ali(int *ali1,int *ali2,int moln1,int moln2,char
 	}
 	out2[i]='\0';
 }
-void CLEFAPS_Main::WS_Insert_Refine_Single(char *seq1,char *seq2,int start1,int start2,int moln1,int moln2,
+void CLEFAPS_Main::Insert_Refine_Single(char *seq1,char *seq2,int start1,int start2,int moln1,int moln2,
 							 double *ws_in,char *out1,char *out2,int HEADorTAIL)
 {
 	int i,j;
@@ -900,7 +900,7 @@ void CLEFAPS_Main::WS_Insert_Refine_Single(char *seq1,char *seq2,int start1,int 
 	out1[i]='\0';
 	out2[i]='\0';
 }
-void CLEFAPS_Main::WS_Insert_Refine_Total(char *ali1,char *ali2,double *ws_in,int moln1,int moln2,
+void CLEFAPS_Main::Insert_Refine_Total(char *ali1,char *ali2,double *ws_in,int moln1,int moln2,
 										  char *out1,char *out2,int CutK)
 {
 	char *seq1=new char[moln1+moln2+1];
@@ -1002,7 +1002,7 @@ void CLEFAPS_Main::WS_Insert_Refine_Total(char *ali1,char *ali2,double *ws_in,in
 				else HEADorTAIL=0;
 				if(HEADorTAIL!=0)
 				{
-					WS_Insert_Refine_Single(seq1,seq2,start1,start2,moln1,moln2,
+					Insert_Refine_Single(seq1,seq2,start1,start2,moln1,moln2,
 						ws_in,wwout1,wwout2,HEADorTAIL);
 				}
 			}
@@ -1035,7 +1035,7 @@ void CLEFAPS_Main::WS_Insert_Refine_Total(char *ali1,char *ali2,double *ws_in,in
 	delete [] wwout1;
 	delete [] wwout2;
 }
-void CLEFAPS_Main::WS_Double_Gap_Refine(char *ali1,char *ali2,double *ws_in,int moln1,int moln2,
+void CLEFAPS_Main::Double_Gap_Refine(char *ali1,char *ali2,double *ws_in,int moln1,int moln2,
 										char *out1,char *out2,int CutK,double thres)
 {
 	char *wwout1=new char[moln1+moln2+1];
@@ -1222,15 +1222,15 @@ void CLEFAPS_Main::CLEF_Single_Match_Kill(XYZ *mol1,XYZ *mol2,int moln1,int moln
 		FM_Align_Refine(mol1,mol2,moln1,moln2,ali2_,ali2_,rotmat);
 		//kill single gap
 		TM_Align_Get_Score(mol1,mol2,moln1,moln2,ali2_); //only consider vector score !!!
-		WS_Transform_Ali(ali1_,ali2_,moln1,moln2,IN_AMI1,IN_AMI2,seq1,seq2);
-		WS_Insert_Refine_Total(seq1,seq2,TM_DP_sco,moln1,moln2,out1,out2,CutK1);
+		Transform_Ali(ali1_,ali2_,moln1,moln2,IN_AMI1,IN_AMI2,seq1,seq2);
+		Insert_Refine_Total(seq1,seq2,TM_DP_sco,moln1,moln2,out1,out2,CutK1);
 		//kill double gap
 		strcpy(seq1,out1);
 		strcpy(seq2,out2);
-		WS_Double_Gap_Refine(seq1,seq2,TM_DP_sco,moln1,moln2,out1,out2,CutK1,CutK2_thres);
+		Double_Gap_Refine(seq1,seq2,TM_DP_sco,moln1,moln2,out1,out2,CutK1,CutK2_thres);
 //		TM_Vect_Score=Vect_Sco_Ori; //switch off
 		//final
-		WS_Retreive_Alignment(out1,out2,ali2_,moln2);
+		Retreive_Alignment(out1,out2,ali2_,moln2);
 		tms=TM_Align_TM_Score_Simp(mol1,mol2,moln1,moln2,ali2_,rmsd,lali);
 		//kill fragment
 		if(Kill_Frag==1)
@@ -1413,7 +1413,7 @@ double CLEFAPS_Main::FM_Align_Total(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int 
 	memset(ali2_,-1,moln2*sizeof(int));
 	memset(TM_Main_Ali2,-1,moln2*sizeof(int));
 
-	//============ WS_CLEFAPS ============//
+	//============ CLEFAPS ============//
 	//CLEFAPS
 //ws_init0:
 	FM_align_tot.clear();
@@ -1655,7 +1655,7 @@ double CLEFAPS_Main::FM_Align_Normal(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int
 	memset(ali2_,-1,moln2*sizeof(int));
 	memset(TM_Main_Ali2,-1,moln2*sizeof(int));
 
-	//============ WS_CLEFAPS ============//
+	//============ CLEFAPS ============//
 	//CLEFAPS
 //ws_init0:
 	FM_align_tot.clear();
@@ -1690,7 +1690,7 @@ double CLEFAPS_Main::FM_Align_Normal(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int
 			memcpy(TM_FINMAT,TM_rotmat,12*sizeof(double));
 			AliT_Max=5;
 		}
-		if(TM_CUR<=TM_BEST*WS_Refine_Cut)goto ws_init1;  //check bad...
+		if(TM_CUR<=TM_BEST*Refine_Cut)goto ws_init1;  //check bad...
 		TM_GAP_TYPE=-1;  //faster DynaProg_bound //__110720__//
 		TM_CUR=Calc_TM_Align(mol1,mol2,moln1,moln2,TM_Main_Ali2,TM_Main_Ali2,-1,REFINE_ITER); //run DynaProg
 		TM_GAP_TYPE=0;   //reset to normal DynaProg //__110720__//
@@ -1717,7 +1717,7 @@ ws_init1:
 			memcpy(TM_FINMAT,TM_rotmat,12*sizeof(double));
 			AliT_Max=1;
 		}
-		if(TM_CUR<=TM_BEST*WS_Refine_Cut)goto ws_init3;  //check bad...
+		if(TM_CUR<=TM_BEST*Refine_Cut)goto ws_init3;  //check bad...
 //		TM_GAP_TYPE=-1;  //faster DynaProg_bound //__110720__//
 		TM_CUR=Calc_TM_Align(mol1,mol2,moln1,moln2,TM_Main_Ali2,TM_Main_Ali2,-1,REFINE_ITER); //run DynaProg
 //		TM_GAP_TYPE=0;   //reset to normal DynaProg //__110720__//
@@ -1744,7 +1744,7 @@ ws_init1:
 				memcpy(TM_FINMAT,TM_rotmat,12*sizeof(double));
 				AliT_Max=7;
 			}
-			if(TM_CUR<=TM_BEST*WS_Refine_Cut)goto ws_init3;  //check bad...
+			if(TM_CUR<=TM_BEST*Refine_Cut)goto ws_init3;  //check bad...
 //			TM_GAP_TYPE=-1;  //faster DynaProg_bound //__110720__//
 			TM_CUR=Calc_TM_Align(mol1,mol2,moln1,moln2,TM_Main_Ali2,TM_Main_Ali2,-1,REFINE_ITER); //run DynaProg
 //			TM_GAP_TYPE=0;   //reset to normal DynaProg //__110720__//
@@ -1772,7 +1772,7 @@ ws_init3:
 			memcpy(TM_FINMAT,TM_rotmat,12*sizeof(double));
 			AliT_Max=3;
 		}
-		if(TM_CUR<=TM_BEST*WS_Refine_Cut)goto ws_end;  //check bad...
+		if(TM_CUR<=TM_BEST*Refine_Cut)goto ws_end;  //check bad...
 		TM_GAP_TYPE=-1;  //faster DynaProg_bound //__110720__//
 		TM_CUR=Calc_TM_Align(mol1,mol2,moln1,moln2,TM_Main_Ali2,TM_Main_Ali2,-1,REFINE_ITER); //run DynaProg
 		TM_GAP_TYPE=0;   //reset to normal DynaProg //__110720__//
@@ -1841,7 +1841,7 @@ double CLEFAPS_Main::FM_Align_WithAli(XYZ *mol1,XYZ *mol2,int moln1,int moln2,in
 	AliT_Rec=0;  //default:NOT
 	AliT_Max=0;  //default:NO
 
-	//============ WS_CLEFAPS ============//
+	//============ CLEFAPS ============//
 	FM_align_tot.clear();
 	{
 		memcpy(TM_Main_Ali2,ali2_,moln2*sizeof(int));  //assign the current best path!!
@@ -1923,7 +1923,7 @@ double CLEFAPS_Main::FM_Align_Lite(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int *
 	memset(ali2_,-1,moln2*sizeof(int));
 	memset(TM_Main_Ali2,-1,moln2*sizeof(int));
 
-	//============ WS_CLEFAPS ============//
+	//============ CLEFAPS ============//
 	//CLEFAPS
 //ws_init0:
 	FM_align_tot.clear();
@@ -1958,7 +1958,7 @@ double CLEFAPS_Main::FM_Align_Fast(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int *
 	for(k=0;k<moln2;k++)TM_Main_Ali2[k]=-1;
 	CLEFAPS_Main_Init(1);
 
-	//============ WS_CLEFAPS ============//
+	//============ CLEFAPS ============//
 	//CLE DynaProg
 	FM_Get_Initial2(mol1,mol2,moln1,moln2,TM_Main_Ali2);
 	TM_CUR=Calc_TM_Align(mol1,mol2,moln1,moln2,TM_Main_Ali2,TM_Main_Ali2,1);  //just calc score

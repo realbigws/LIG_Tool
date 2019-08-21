@@ -53,7 +53,7 @@ void Hydro_Bond::HB_Input_Mol(XYZ **mol,char *ami,int moln)
 	//----- create H atom ------//
 	for(i=0;i<HB_moln-1;i++)
 	{
-		//---- WS_Modify ----//__100718__//
+		//---- Modify ----//__100718__//
 		//proline has no backbone hydrogen atom!!
 		//so we may neglect the dihetral angle calculation!!
 		if(HB_ami[i+1]!='P')
@@ -344,7 +344,7 @@ sheet_assign:
 					}
 					HB_bridge[0]++;
 					index=HB_bridge[0];
-					HB_bridge[index]=abs(type)*INT_MAX_NUM*3000+i*INT_MAX_NUM+j;
+					HB_bridge[index]=abs(type)*INT_MAX_NUM*PROT_MAX_NUM+i*INT_MAX_NUM+j;
 					if(type<0)HB_bridge[index]*=-1;
 				}
 			}
@@ -373,8 +373,8 @@ void Hydro_Bond::HB_Calc_SSE_Sheet_Ladder(void)
 		if(value>0)
 		{
 			rtype1=1;
-			type1=value/(3000*INT_MAX_NUM);
-			value=value%(3000*INT_MAX_NUM);
+			type1=value/(PROT_MAX_NUM*INT_MAX_NUM);
+			value=value%(PROT_MAX_NUM*INT_MAX_NUM);
 			ii=value/INT_MAX_NUM;
 			jj=value%INT_MAX_NUM;
 		}
@@ -382,8 +382,8 @@ void Hydro_Bond::HB_Calc_SSE_Sheet_Ladder(void)
 		{
 			rtype1=-1;
 			value*=-1;
-			type1=value/(3000*INT_MAX_NUM);
-			value=value%(3000*INT_MAX_NUM);
+			type1=value/(PROT_MAX_NUM*INT_MAX_NUM);
+			value=value%(PROT_MAX_NUM*INT_MAX_NUM);
 			ii=value/INT_MAX_NUM;
 			jj=value%INT_MAX_NUM;
 		}
@@ -396,8 +396,8 @@ void Hydro_Bond::HB_Calc_SSE_Sheet_Ladder(void)
 			if(value>0)
 			{
 				rtype2=1;
-				type2=value/(3000*INT_MAX_NUM);
-				value=value%(3000*INT_MAX_NUM);
+				type2=value/(PROT_MAX_NUM*INT_MAX_NUM);
+				value=value%(PROT_MAX_NUM*INT_MAX_NUM);
 				cur_ii=value/INT_MAX_NUM;
 				cur_jj=value%INT_MAX_NUM;
 			}
@@ -405,8 +405,8 @@ void Hydro_Bond::HB_Calc_SSE_Sheet_Ladder(void)
 			{
 				rtype2=-1;
 				value*=-1;
-				type2=value/(3000*INT_MAX_NUM);
-				value=value%(3000*INT_MAX_NUM);
+				type2=value/(PROT_MAX_NUM*INT_MAX_NUM);
+				value=value%(PROT_MAX_NUM*INT_MAX_NUM);
 				cur_ii=value/INT_MAX_NUM;
 				cur_jj=value%INT_MAX_NUM;
 			}

@@ -4,7 +4,7 @@
 class TM_score : virtual public Kabsch
 {
 public:
-	TM_score(int num=3000);
+	TM_score(int num=PROT_MAX_NUM);
 	~TM_score(void);
 	int TMS_maximal;
 

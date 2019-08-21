@@ -8,7 +8,7 @@
 class Ali_Ali3 : virtual public Ali_Ori
 {
 public:
-	Ali_Ali3(int num=3000);
+	Ali_Ali3(int num=PROT_MAX_NUM);
 	~Ali_Ali3(void);
 	int Ali3_Maximal;
 

@@ -250,7 +250,7 @@ void TM_Align_Main::TM_Smooth_SSE(int *sse,int moln)
 	int i;
 	int j;
 	//--- smooth single ----//
-	for(i=2;i<moln-2;i++)  //is a bug??//__Added by WS__//__101205__//
+	for(i=2;i<moln-2;i++)  //is a bug??//__Added at//__101205__//
 	{
 		if(sse[i]==2||sse[i]==4)
 		{
@@ -261,7 +261,7 @@ void TM_Align_Main::TM_Smooth_SSE(int *sse,int moln)
 				{
 					if(sse[i+1]!=j)
 					{
-						if(sse[i+2]!=j)  //is a bug??//__Added by WS__//__101205__//
+						if(sse[i+2]!=j)  //is a bug??//__Added at//__101205__//
 						{
 							sse[i]=1;
 						}
@@ -271,7 +271,7 @@ void TM_Align_Main::TM_Smooth_SSE(int *sse,int moln)
 		}
 	}
 	//--- smooth double ----//
-	for(i=0;i<moln-5;i++)  //is a bug??//__Added by WS__//__101205__//
+	for(i=0;i<moln-5;i++)  //is a bug??//__Added at//__101205__//
 	{
 		//helix
 		if(sse[i]!=2)
@@ -425,7 +425,7 @@ void TM_Align_Main::TM_Get_Initial1(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int 
 							TM_DP_sco[i*moln2+j]=1.0/(1.0+dist2/d02);  // this is NOT d0 !!!
 						}
 					}
-					double gap_open=0.0;            // this is NOT defined in TM_align.f !!! //__Added by WS__//__101205__//
+					double gap_open=0.0;            // this is NOT defined in TM_align.f !!! //__Added at//__101205__//
 					int align_len1=TM_Align_Dyna_Prog(moln1,moln2,TM_DP_sco,TM_DP_best,gap_open);
 					if(align_len1>count*n_cuta && align_len1>idel)
 					{
@@ -747,7 +747,7 @@ void TM_Align_Main::TM_Get_Initial5(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int 
 	int k;
 	int ii,jj;
 	int iii,jjj;
-	double gap_open=0.0;            // this is NOT defined in TM_align.f !!! //__Added by WS__//__101205__//
+	double gap_open=0.0;            // this is NOT defined in TM_align.f !!! //__Added at//__101205__//
 	for(ii=20;ii<=m1;ii+=n_jump)
 	{
 		for(jj=20;jj<=m2;jj+=n_jump)
@@ -803,7 +803,7 @@ void TM_Align_Main::TM_Get_Initial6(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int 
 	int iii,jjj;
 	int secmatch;
 	int coilcnt;
-	double gap_open=0.0;            // this is NOT defined in TM_align.f !!! //__Added by WS__//__101205__//
+	double gap_open=0.0;            // this is NOT defined in TM_align.f !!! //__Added at//__101205__//
 	int align_len1;
 	for(ii=1;ii<=m1;ii+=n_jump)
 	{
@@ -1032,7 +1032,7 @@ ws_end:
 	return TM_FIN_TMS;
 }
 
-//[WS_modified, just change the order of the initial alignment]
+//[modified, just change the order of the initial alignment]
 double TM_Align_Main::TM_Align_Total_II(XYZ *mol1,XYZ *mol2,int moln1,int moln2,int *ali2,
 										int norm_len,double norm_d0,double *MAXSCO)
 {

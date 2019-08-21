@@ -16,7 +16,7 @@ CLEFAPS_CLE::CLEFAPS_CLE(int num,int CLESUM)
 	SFP_L_Thres=0;
 	SFP_H_Thres=10;
 	//refine parameter
-	WS_Refine_Cut=0.3; //only TM_refine 0.3*max
+	Refine_Cut=0.3; //only TM_refine 0.3*max
 	//upper and lower max
 	ZM_Upper_Max=500;
 	ZM_Lower_Max=100;
@@ -130,7 +130,7 @@ double CLEFAPS_CLE::CLEFAPS_Second_Refine(vector <Align_Record> &tot)
 		tmp[j].main_sco=wssco;
 		if(wssco>wsmax)wsmax=wssco;
 		if(tmsco>tmmax)tmmax=tmsco;
-		if(wssco<wsmax*WS_Refine_Cut && tmsco<tmmax*WS_Refine_Cut)break;
+		if(wssco<wsmax*Refine_Cut && tmsco<tmmax*Refine_Cut)break;
 		wstot++;
 	}
 	//final-add

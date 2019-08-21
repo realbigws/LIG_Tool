@@ -22,7 +22,7 @@ CLEPAPS_Ori::CLEPAPS_Ori(void)
 	FIN_CUT=5.0;         // default [5.0]  => final distance cutoff
 	INI_CUT=10.0;        // default [10.0] => initial distance cutoff
 	ZM_TopK=20;          // default 20
-	ZM_TopJ=3000;        // default 3000 (all)
+	ZM_TopJ=PROT_MAX_NUM;        // default PROT_MAX_NUM (all)
 }
 CLEPAPS_Ori::~CLEPAPS_Ori(void)
 {

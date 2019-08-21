@@ -10,7 +10,7 @@ using namespace std;
 class BLOSEN_CLE : public BLOSEN, virtual public Bioinfo_Code
 {
 public:
-	BLOSEN_CLE(int num=3000,int CLESUM=1);
+	BLOSEN_CLE(int num=PROT_MAX_NUM,int CLESUM=1);
 	~BLOSEN_CLE(void);
 
 //--- parameter_set ----//

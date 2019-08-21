@@ -7,7 +7,7 @@
 class Confo_Beta
 {
 public:
-	Confo_Beta(int num=3000);
+	Confo_Beta(int num=PROT_MAX_NUM);
 	~Confo_Beta(void);
 	int Confo_Beta_Maximal; 
 
@@ -36,9 +36,9 @@ public:
 	void Confo_Beta_Angle_To_CACB(XYZ *CA,XYZ *CB,int moln,double *bend,double *tort,double *dist);
 	void Confo_Beta_Levit_To_CACB(XYZ *CA,XYZ *CB,int moln,double *dist);
 	//main
-	void WS_Recon_Beta_1(XYZ *CA,XYZ *CB,int moln,char *ami); //given CA+CB, and AMI_Dist, update SC
-	void WS_Recon_Beta_31(XYZ *CA,XYZ *CB,int moln,char *ami); //given CA, return CB (Levitt)
-	void WS_Recon_Beta_32(XYZ *CA,XYZ *CB,int moln,char *ami); //given CA, return SC (Levitt)
-	void WS_Recon_Beta_21(XYZ *CA,XYZ *CB,int moln,char *ami,char *cle); //given CA, and CLE_Type, return CB (Liu & Wang)
-	void WS_Recon_Beta_22(XYZ *CA,XYZ *CB,int moln,char *ami,char *cle); //given CA, and CLE_Type, return CB (Liu & Wang)	
+	void Recon_Beta_1(XYZ *CA,XYZ *CB,int moln,char *ami); //given CA+CB, and AMI_Dist, update SC
+	void Recon_Beta_31(XYZ *CA,XYZ *CB,int moln,char *ami); //given CA, return CB (Levitt)
+	void Recon_Beta_32(XYZ *CA,XYZ *CB,int moln,char *ami); //given CA, return SC (Levitt)
+	void Recon_Beta_21(XYZ *CA,XYZ *CB,int moln,char *ami,char *cle); //given CA, and CLE_Type, return CB (Liu & Wang)
+	void Recon_Beta_22(XYZ *CA,XYZ *CB,int moln,char *ami,char *cle); //given CA, and CLE_Type, return CB (Liu & Wang)	
 };

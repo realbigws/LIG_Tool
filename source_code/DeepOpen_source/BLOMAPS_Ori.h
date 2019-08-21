@@ -51,16 +51,16 @@ public:
 	double *TEMP_TMS;    //temporary TMscore
 	int *Pivot_Ali_Temp; //pivot_aligned temp
 	int **Pivot_Ali;     //pivot_aligned corset (All-To-One style)
-	int **WS_ALIOUT;     //multi_aligned corset (MSA style)
-	int WS_TOTLEN;       //multi_aligned totlen (MSA totlen)
+	int **ALIOUT;        //multi_aligned corset (MSA style)
+	int TOTLEN;          //multi_aligned totlen (MSA totlen)
 	//[real temp]
 	int *Real_Temp_Ali2; //for record real temp
 	double *Real_Temp_Rot;//real temp rotmat
 	//[final out] fixed-> cannot modify
 	int FIN_PIVOT;       //final pivot
 	double **FIN_ROT;    //final rotmat
-	int **WS_ALIBEST;    //multi_aligned best corset (MSA style)
-	int WS_BESTLEN;      //multi_aligned bsst totlen (MSA totlen)
+	int **ALIBEST;       //multi_aligned best corset (MSA style)
+	int BESTLEN;         //multi_aligned bsst totlen (MSA totlen)
 	double FIN_SCORE;    //final Sum-TM
 	//---- final record ----//
 	vector <vector <vector <double > > > FIN_ROT_REC;

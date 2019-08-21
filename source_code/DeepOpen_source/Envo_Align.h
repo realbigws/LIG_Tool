@@ -7,7 +7,7 @@
 class Envo_Align : virtual public TM_align, virtual public Bioinfo_Code
 {
 public:
-	Envo_Align(int num=3000,int CLESUM=1);
+	Envo_Align(int num=PROT_MAX_NUM,int CLESUM=1);
 	~Envo_Align(void);
 	int Envo_Align_maximal;
 

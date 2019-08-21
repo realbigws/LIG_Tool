@@ -7,7 +7,7 @@
 class MultiAlign_Cent : virtual public TM_align
 {
 public:
-	MultiAlign_Cent(int tmnum=3000);
+	MultiAlign_Cent(int tmnum=PROT_MAX_NUM);
 	~MultiAlign_Cent(void);
 
 //--- macros ---//

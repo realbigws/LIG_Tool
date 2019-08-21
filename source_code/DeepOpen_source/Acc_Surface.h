@@ -8,7 +8,7 @@
 class Acc_Surface
 {
 public:
-	Acc_Surface(int num=3000,int ORDER=2);
+	Acc_Surface(int num=PROT_MAX_NUM,int ORDER=2);
 	~Acc_Surface(void);
 
 //---- data_structure ---//
@@ -41,7 +41,7 @@ public:
 
 	//[input/output]
 	//solvent accessibility structure
-	int AC_MAXIMAL;     //maximal length  -> default:3000
+	int AC_MAXIMAL;     //maximal length  -> default: PROT_MAX_NUM
 	int AC_moln;        //mol length
 	XYZ **AC_mol;       //input mol (N,CA,C,O) [backbone]
 	int AC_side;        //total sidechain number

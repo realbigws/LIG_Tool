@@ -9,9 +9,9 @@
 class Hydro_Bond
 {
 public:
-	Hydro_Bond(int num=3000);
+	Hydro_Bond(int num=PROT_MAX_NUM);
 	~Hydro_Bond(void);
-	int HB_MAXIMAL;     //default:3000
+	int HB_MAXIMAL;     //default: PROT_MAX_NUM
 
 //---- data_structure ---//
 public:

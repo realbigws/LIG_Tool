@@ -8,7 +8,7 @@ using namespace std;
 class TM_align : public TM_score
 {
 public:
-	TM_align(int num=3000);
+	TM_align(int num=PROT_MAX_NUM);
 	~TM_align(void);
 	int TM_maximal;
 

@@ -121,7 +121,7 @@ struct Ligand_Struc
 };
 
 //--------- Ligand_Mapping --------//
-int WS_Ligand_Trans(char code) 
+int Ligand_Trans(char code) 
 { 
 	switch(code) 
 	{ 
@@ -202,23 +202,23 @@ int PDB_Extract_Ligand(string &pdb,vector <Ligand_Struc> &output)
 
 	output.clear();
 	//--- list for mapping ---//
-	map<string, int > ws_mapping;
+	map<string, int > in_mapping;
 	map<string, int>::iterator iter;
-	ws_mapping.clear();
+	in_mapping.clear();
 	//--- data for mapping ---//
-	vector <int> ws_mapp_int;
-	vector <string> ws_mapp_nam;
-	vector <vector < vector <string> > > ws_mapp_string;
-	ws_mapp_int.clear();
-	ws_mapp_nam.clear();
-	ws_mapp_string.clear();
+	vector <int> in_mapp_int;
+	vector <string> in_mapp_nam;
+	vector <vector < vector <string> > > in_mapp_string;
+	in_mapp_int.clear();
+	in_mapp_nam.clear();
+	in_mapp_string.clear();
 	string lig_dummy;
 
 	//--- list for mapping ---//
 	ifstream fin;
 	string buf,temp;
-	string ws_nam;
-	getBaseName(pdb,ws_nam,'/','.');
+	string in_nam;
+	getBaseName(pdb,in_nam,'/','.');
 	//read
 	fin.open(pdb.c_str(), ios::in);
 	if(fin.fail()!=0)
@@ -234,12 +234,12 @@ int PDB_Extract_Ligand(string &pdb,vector <Ligand_Struc> &output)
 	int key;
 	char ws3[4];
 	char chain;
-	vector <string> ws_record;
-	ws_record.clear();
+	vector <string> in_record;
+	in_record.clear();
 	int prev=-1;
 	string prev_chain;
 	string current_chain;
-	char ws_prev[4];
+	char in_prev[4];
 	//processs
 	for(;;)
 	{
@@ -255,35 +255,35 @@ int PDB_Extract_Ligand(string &pdb,vector <Ligand_Struc> &output)
 			{
 				first=1;
 				//record
-				vector <string> ws_record_tmp;
-				for(i=0;i<(int)ws_record.size();i++)
+				vector <string> in_record_tmp;
+				for(i=0;i<(int)in_record.size();i++)
 				{
-					if(ws_record[i][77]!='H')
+					if(in_record[i][77]!='H')
 					{
-						ws_record_tmp.push_back(ws_record[i]);
+						in_record_tmp.push_back(in_record[i]);
 					}
 				}
 				//output
 				lig_dummy="";
-				lig_dummy=lig_dummy+ws_prev;
-				iter = ws_mapping.find(lig_dummy);
-				if(iter != ws_mapping.end()) //already exist ligand
+				lig_dummy=lig_dummy+in_prev;
+				iter = in_mapping.find(lig_dummy);
+				if(iter != in_mapping.end()) //already exist ligand
 				{
-					key=ws_mapping[lig_dummy];
-					ws_mapp_int[key-1]++;
-					ws_mapp_string[key-1].push_back(ws_record_tmp);
+					key=in_mapping[lig_dummy];
+					in_mapp_int[key-1]++;
+					in_mapp_string[key-1].push_back(in_record_tmp);
 				}
 				else                         //newly appear ligand
 				{
 					tot_lig++;
-					ws_mapping.insert(map < string, int >::value_type(lig_dummy, tot_lig));
+					in_mapping.insert(map < string, int >::value_type(lig_dummy, tot_lig));
 					string wsss=lig_dummy;
 					for(ii=0;ii<(int)wsss.length();ii++)if(wsss[ii]==' ')wsss[ii]='_';
-					ws_mapp_nam.push_back(wsss);
-					ws_mapp_int.push_back(1);
+					in_mapp_nam.push_back(wsss);
+					in_mapp_int.push_back(1);
 					vector < vector <string> > dummy_vec;
-					ws_mapp_string.push_back(dummy_vec);
-					ws_mapp_string[tot_lig-1].push_back(ws_record_tmp);
+					in_mapp_string.push_back(dummy_vec);
+					in_mapp_string[tot_lig-1].push_back(in_record_tmp);
 				}
 			}
 		}
@@ -320,8 +320,8 @@ int PDB_Extract_Ligand(string &pdb,vector <Ligand_Struc> &output)
 		chain=buf[21];
 		current_chain=buf.substr(21,6);
 		int result=0;
-		for(i=0;i<3;i++)result+=(WS_Ligand_Trans(ws3[i]))*(int)pow(37.0,1.0*i);
-		int retv=WS_Ligand_Num_Code(result);
+		for(i=0;i<3;i++)result+=(Ligand_Trans(ws3[i]))*(int)pow(37.0,1.0*i);
+		int retv=Ligand_Num_Code(result);
 		if(retv!=-1)
 		{
 			if(first==1)
@@ -329,52 +329,52 @@ int PDB_Extract_Ligand(string &pdb,vector <Ligand_Struc> &output)
 				first=0;
 				prev=retv;
 				prev_chain=current_chain;
-				strcpy(ws_prev,ws3);
-				ws_record.clear();
-				ws_record.push_back(buf);
+				strcpy(in_prev,ws3);
+				in_record.clear();
+				in_record.push_back(buf);
 			}
 			else
 			{
-				if(retv==prev && current_chain==prev_chain)ws_record.push_back(buf);
+				if(retv==prev && current_chain==prev_chain)in_record.push_back(buf);
 				else
 				{
 					//record
-					vector <string> ws_record_tmp;
-					for(i=0;i<(int)ws_record.size();i++)
+					vector <string> in_record_tmp;
+					for(i=0;i<(int)in_record.size();i++)
 					{
-						if(ws_record[i][77]!='H')
+						if(in_record[i][77]!='H')
 						{
-							ws_record_tmp.push_back(ws_record[i]);
+							in_record_tmp.push_back(in_record[i]);
 						}
 					}
 					//output
 					lig_dummy="";
-					lig_dummy=lig_dummy+ws_prev;
-					iter = ws_mapping.find(lig_dummy);
-					if(iter != ws_mapping.end()) //already exist ligand
+					lig_dummy=lig_dummy+in_prev;
+					iter = in_mapping.find(lig_dummy);
+					if(iter != in_mapping.end()) //already exist ligand
 					{
-						key=ws_mapping[lig_dummy];
-						ws_mapp_int[key-1]++;
-						ws_mapp_string[key-1].push_back(ws_record_tmp);
+						key=in_mapping[lig_dummy];
+						in_mapp_int[key-1]++;
+						in_mapp_string[key-1].push_back(in_record_tmp);
 					}
 					else                         //newly appear ligand
 					{
 						tot_lig++;
-						ws_mapping.insert(map < string, int >::value_type(lig_dummy, tot_lig));
+						in_mapping.insert(map < string, int >::value_type(lig_dummy, tot_lig));
 						string wsss=lig_dummy;
 						for(ii=0;ii<(int)wsss.length();ii++)if(wsss[ii]==' ')wsss[ii]='_';
-						ws_mapp_nam.push_back(wsss);
-						ws_mapp_int.push_back(1);
+						in_mapp_nam.push_back(wsss);
+						in_mapp_int.push_back(1);
 						vector < vector <string> > dummy_vec;
-						ws_mapp_string.push_back(dummy_vec);
-						ws_mapp_string[tot_lig-1].push_back(ws_record_tmp);
+						in_mapp_string.push_back(dummy_vec);
+						in_mapp_string[tot_lig-1].push_back(in_record_tmp);
 					}
 					//continue
 					prev=retv;
 					prev_chain=current_chain;
-					strcpy(ws_prev,ws3);
-					ws_record.clear();
-					ws_record.push_back(buf);
+					strcpy(in_prev,ws3);
+					in_record.clear();
+					in_record.push_back(buf);
 				}
 			}
 		}
@@ -384,35 +384,35 @@ int PDB_Extract_Ligand(string &pdb,vector <Ligand_Struc> &output)
 			{
 				first=1;
 				//record
-				vector <string> ws_record_tmp;
-				for(i=0;i<(int)ws_record.size();i++)
+				vector <string> in_record_tmp;
+				for(i=0;i<(int)in_record.size();i++)
 				{
-					if(ws_record[i][77]!='H')
+					if(in_record[i][77]!='H')
 					{
-						ws_record_tmp.push_back(ws_record[i]);
+						in_record_tmp.push_back(in_record[i]);
 					}
 				}
 				//output
 				lig_dummy="";
-				lig_dummy=lig_dummy+ws_prev;
-				iter = ws_mapping.find(lig_dummy);
-				if(iter != ws_mapping.end()) //already exist ligand
+				lig_dummy=lig_dummy+in_prev;
+				iter = in_mapping.find(lig_dummy);
+				if(iter != in_mapping.end()) //already exist ligand
 				{
-					key=ws_mapping[lig_dummy];
-					ws_mapp_int[key-1]++;
-					ws_mapp_string[key-1].push_back(ws_record_tmp);
+					key=in_mapping[lig_dummy];
+					in_mapp_int[key-1]++;
+					in_mapp_string[key-1].push_back(in_record_tmp);
 				}
 				else                         //newly appear ligand
 				{
 					tot_lig++;
-					ws_mapping.insert(map < string, int >::value_type(lig_dummy, tot_lig));
+					in_mapping.insert(map < string, int >::value_type(lig_dummy, tot_lig));
 					string wsss=lig_dummy;
 					for(ii=0;ii<(int)wsss.length();ii++)if(wsss[ii]==' ')wsss[ii]='_';
-					ws_mapp_nam.push_back(wsss);
-					ws_mapp_int.push_back(1);
+					in_mapp_nam.push_back(wsss);
+					in_mapp_int.push_back(1);
 					vector < vector <string> > dummy_vec;
-					ws_mapp_string.push_back(dummy_vec);
-					ws_mapp_string[tot_lig-1].push_back(ws_record_tmp);
+					in_mapp_string.push_back(dummy_vec);
+					in_mapp_string[tot_lig-1].push_back(in_record_tmp);
 				}
 			}
 		}
@@ -422,35 +422,35 @@ int PDB_Extract_Ligand(string &pdb,vector <Ligand_Struc> &output)
 	{
 		first=1;
 		//record
-		vector <string> ws_record_tmp;
-		for(i=0;i<(int)ws_record.size();i++)
+		vector <string> in_record_tmp;
+		for(i=0;i<(int)in_record.size();i++)
 		{
-			if(ws_record[i][77]!='H')
+			if(in_record[i][77]!='H')
 			{
-				ws_record_tmp.push_back(ws_record[i]);
+				in_record_tmp.push_back(in_record[i]);
 			}
 		}
 		//output
 		lig_dummy="";
-		lig_dummy=lig_dummy+ws_prev;
-		iter = ws_mapping.find(lig_dummy);
-		if(iter != ws_mapping.end()) //already exist ligand
+		lig_dummy=lig_dummy+in_prev;
+		iter = in_mapping.find(lig_dummy);
+		if(iter != in_mapping.end()) //already exist ligand
 		{
-			key=ws_mapping[lig_dummy];
-			ws_mapp_int[key-1]++;
-			ws_mapp_string[key-1].push_back(ws_record_tmp);
+			key=in_mapping[lig_dummy];
+			in_mapp_int[key-1]++;
+			in_mapp_string[key-1].push_back(in_record_tmp);
 		}
 		else                         //newly appear ligand
 		{
 			tot_lig++;
-			ws_mapping.insert(map < string, int >::value_type(lig_dummy, tot_lig));
+			in_mapping.insert(map < string, int >::value_type(lig_dummy, tot_lig));
 			string wsss=lig_dummy;
 			for(ii=0;ii<(int)wsss.length();ii++)if(wsss[ii]==' ')wsss[ii]='_';
-			ws_mapp_nam.push_back(wsss);
-			ws_mapp_int.push_back(1);
+			in_mapp_nam.push_back(wsss);
+			in_mapp_int.push_back(1);
 			vector < vector <string> > dummy_vec;
-			ws_mapp_string.push_back(dummy_vec);
-			ws_mapp_string[tot_lig-1].push_back(ws_record_tmp);
+			in_mapp_string.push_back(dummy_vec);
+			in_mapp_string[tot_lig-1].push_back(in_record_tmp);
 		}
 	}
 
@@ -460,30 +460,30 @@ int PDB_Extract_Ligand(string &pdb,vector <Ligand_Struc> &output)
 	int tot_num=0;
 	for(i=0;i<tot_lig;i++)
 	{
-		for(j=0;j<ws_mapp_int[i];j++)
+		for(j=0;j<in_mapp_int[i];j++)
 		{
 			//get name
 			sprintf(command,"%-4d",tot_num);
 			command[4]='\0';
 			for(k=0;k<(int)strlen(command);k++)if(command[k]==' ')command[k]='_';
 			string name_tmp=command;
-			string name=ws_mapp_nam[i]+"_"+name_tmp;
+			string name=in_mapp_nam[i]+"_"+name_tmp;
 			//get type
-			string wsss=ws_mapp_nam[i];
+			string wsss=in_mapp_nam[i];
 			for(k=0;k<3;k++)if(wsss[k]=='_')wsss[k]=' ';
 			int result=0;
-			for(k=0;k<3;k++)result+=(WS_Ligand_Trans(wsss[k]))*(int)pow(37.0,1.0*k);
-			int retv=WS_Ligand_Num_Code(result);
-			const char *ligtype=WS_Ligand_CAMEO(retv);
+			for(k=0;k<3;k++)result+=(Ligand_Trans(wsss[k]))*(int)pow(37.0,1.0*k);
+			int retv=Ligand_Num_Code(result);
+			const char *ligtype=Ligand_CAMEO(retv);
 			//assign
 			vector <XYZ> xyz_tmp;
-			int moln=Ligand_String_To_XYZ(ws_mapp_string[i][j],xyz_tmp);
+			int moln=Ligand_String_To_XYZ(in_mapp_string[i][j],xyz_tmp);
 			Ligand_Struc ligand_struc;
 			ligand_struc.lig_name=name;
 			ligand_struc.lig_type=ligtype;
 			ligand_struc.lig_moln=moln;
 			ligand_struc.lig_xyz=xyz_tmp;
-			ligand_struc.lig_data=ws_mapp_string[i][j];
+			ligand_struc.lig_data=in_mapp_string[i][j];
 			//incremental
 			output.push_back(ligand_struc);
 			tot_num++;
@@ -863,8 +863,8 @@ int Reconstruct_Missing(vector <PDB_Residue> &pdb)
 	//[1]recon
 	confo_lett.btb_ori(0,0,0,moln,mol,cle);
 	cle[moln]='\0';
-	confo_back.Recon_Back_WS_Main(mol,cle,moln,mbb);      //given CA, recon BackBone (N,CA,C,O,CB)
-	confo_beta.WS_Recon_Beta_21(mol,mcb,moln,ami,cle);    //given CA, recon CB
+	confo_back.Recon_Back_Main(mol,cle,moln,mbb);      //given CA, recon BackBone (N,CA,C,O,CB)
+	confo_beta.Recon_Beta_21(mol,mcb,moln,ami,cle);    //given CA, recon CB
 	//[2]assign
 	for(i=0;i<moln;i++)
 	{

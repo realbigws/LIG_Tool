@@ -59,8 +59,8 @@ PDB_File::PDB_File(const PDB_File & file)
 	this->PDB_r_point=file.PDB_r_point;
 	this->PDB_output=file.PDB_output;
 	//chain
-	this->WS_TOTAL_CHAIN=file.WS_TOTAL_CHAIN; //__100604__//
-	this->WS_NAME_CHAIN=file.WS_NAME_CHAIN;   //__100604__//
+	this->TOTAL_CHAIN=file.TOTAL_CHAIN; //__100604__//
+	this->NAME_CHAIN=file.NAME_CHAIN;   //__100604__//
 }
 PDB_File &  PDB_File::operator =(const PDB_File & file)
 {
@@ -76,8 +76,8 @@ PDB_File &  PDB_File::operator =(const PDB_File & file)
 	this->PDB_r_point=file.PDB_r_point;
 	this->PDB_output=file.PDB_output;
 	//chain
-	this->WS_TOTAL_CHAIN=file.WS_TOTAL_CHAIN; //__100604__//
-	this->WS_NAME_CHAIN=file.WS_NAME_CHAIN;   //__100604__//
+	this->TOTAL_CHAIN=file.TOTAL_CHAIN; //__100604__//
+	this->NAME_CHAIN=file.NAME_CHAIN;   //__100604__//
 	return *this;
 }
 
@@ -252,7 +252,7 @@ next:
 	return 1;
 }
 
-//============== WS_CLEF_Neo ==============//__100604__//
+//============== CLEF_Neo ==============//__100604__//
 //->read
 int PDB_File::PDB_read_pdb_file(const string & fn,vector<PDB_Chain> & chains,char chain_id)
 {
@@ -268,8 +268,8 @@ int PDB_File::PDB_read_pdb_file(const string & fn,vector<PDB_Chain> & chains,cha
 	chains.resize(ret_val);
 	for(i=0;i<ret_val;i++)
 	{
-		length=WS_TOTAL_CHAIN.at(i);
-		chainID=WS_NAME_CHAIN.at(i);
+		length=TOTAL_CHAIN.at(i);
+		chainID=NAME_CHAIN.at(i);
 		chains.at(i).initialize_simple(length, chainID);
 		for(k=0;k<length;k++)
 		{
@@ -469,7 +469,7 @@ int PDB_File::PDB_write_pdb_file(ostream &os,vector<PDB_Chain> &chains,char chai
 	{
 		if(chain_id=='!'||chain_id==-1)goto begin;
 		if(chain_id=='_')goto begin;
-		if(chain_id==WS_NAME_CHAIN.at(i))goto begin;
+		if(chain_id==NAME_CHAIN.at(i))goto begin;
 		else continue;
 begin:
 		chain=chains.at(i);
@@ -660,7 +660,7 @@ int PDB_File::PDB_write_pdb_file(FILE *fp,vector<PDB_Chain> &chains,
 	{
 		if(chain_id=='!'||chain_id==-1)goto begin;
 		if(chain_id=='_')goto begin;
-		if(chain_id==WS_NAME_CHAIN.at(i))goto begin;
+		if(chain_id==NAME_CHAIN.at(i))goto begin;
 		else continue;
 begin:
 		chain=chains.at(i);
@@ -905,7 +905,7 @@ int PDB_File::PDB_Process_Record(vector <string> &PDB_record_all,char ori_c,PDB_
 			posy[k]='\0';    // get PDB_FILE y coordinate (8)
 			for(k=0;k<8;k++)posz[k]=tempbuf[46+k];
 			posz[k]='\0';    // get PDB_FILE z coordinate (8)
-			//__080228__//apply WS_Neo_Method , check the coordinate
+			//__080228__//apply Neo_Method , check the coordinate
 			if(str2dou(posx,posxf)!=1)
 			{
 				if(PRTOUT==1)fprintf(stderr,"ERROR => HYDROGEN BAD X_POS AT [%d]\n",i);
@@ -969,7 +969,7 @@ int PDB_File::PDB_Process_Record(vector <string> &PDB_record_all,char ori_c,PDB_
 		posy[k]='\0';    // get PDB_FILE y coordinate (8)
 		for(k=0;k<8;k++)posz[k]=tempbuf[46+k];
 		posz[k]='\0';    // get PDB_FILE z coordinate (8)
-		//__080228__//apply WS_Neo_Method , check the coordinate
+		//__080228__//apply Neo_Method , check the coordinate
 		if(str2dou(posx,posxf)!=1)
 		{
 			if(PRTOUT==1)fprintf(stderr,"ERROR => BAD X_POS AT [%d]\n",i);
@@ -998,7 +998,7 @@ int PDB_File::PDB_Process_Record(vector <string> &PDB_record_all,char ori_c,PDB_
 			posx[k]='\0';    // get PDB_FILE rfactor (6) 
 			for(k=0;k<6;k++)posy[k]=tempbuf[60+k]; 
 			posy[k]='\0';    // get PDB_FILE temperature (6) 
-			//__080228__//apply WS_Neo_Method , check the coordinate 
+			//__080228__//apply Neo_Method , check the coordinate 
 			if(str2dou(posx,rfactor)!=1) 
 			{ 
 				if(PRTOUT==1)fprintf(stderr,"ERROR => BAD RFACTOR AT [%d]\r",i); 
@@ -1206,8 +1206,8 @@ int PDB_File::PDB_To_XYZ_AMI_CLE(const string &fn,char ori_id) // given chain
 	PDB_output.clear();
 	PDB_num_rec=0;     //__070230__//
 	//[temp data]
-	WS_TOTAL_CHAIN.clear();
-	WS_NAME_CHAIN.clear();
+	TOTAL_CHAIN.clear();
+	NAME_CHAIN.clear();
 	PDB_record_all.clear();
 
 	//======================================================================================//=>[Main Body] 
@@ -1828,7 +1828,7 @@ wsdanger:
 			posz[ws_i]='\0';    // get PDB_FILE z coordinate (8) 
 
 
-			//__080228__//apply WS_Neo_Method , check the coordinate 
+			//__080228__//apply Neo_Method , check the coordinate 
 			if(str2dou(posx,posxf)!=1) 
 			{ 
 				if(PRTOUT==1)fprintf(stderr,"ERROR => BAD X_POS AT PDB_ID[%4s]:CHAIN[%c]:RES_NUM[%4d]!\n",pdbid,ChianID,ResSeqI); 
@@ -1951,7 +1951,7 @@ ws_altins:
 			posz[ws_i]='\0';    // get PDB_FILE z coordinate (8) 
 
 
-			//__080228__//apply WS_Neo_Method , check the coordinate 
+			//__080228__//apply Neo_Method , check the coordinate 
 			if(str2dou(posx,posxf)!=1) 
 			{ 
 				if(PRTOUT==1)fprintf(stderr,"ERROR => BAD X_POS AT PDB_ID[%4s]:CHAIN[%c]:RES_NUM[%4d]!\n",pdbid,ChianID,ResSeqI); 
@@ -2022,7 +2022,7 @@ wsexit:
 			if(ws_exclaim==1)oo_n=PDB_num_rec-wscount; 
 			else oo_n=0;
 
-			//WS_Debug//__110408__//
+			//Debug//__110408__//
 			if(wscount==0)
 			{
 				if(wsout==1)goto wwout;
@@ -2121,8 +2121,8 @@ wsexit:
 			} 
 
 			//__080305__// 
-			WS_TOTAL_CHAIN.push_back(wscount); //record chain length
-			WS_NAME_CHAIN.push_back(ChianID);  //record chain number
+			TOTAL_CHAIN.push_back(wscount); //record chain length
+			NAME_CHAIN.push_back(ChianID);  //record chain number
 			written_file++;
 
 			//---- init_temp ----//__110408__// 

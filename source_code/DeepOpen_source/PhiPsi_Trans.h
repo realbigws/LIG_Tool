@@ -6,7 +6,7 @@
 class PhiPsi_Trans
 {
 public:
-	PhiPsi_Trans(int num=3000);
+	PhiPsi_Trans(int num=PROT_MAX_NUM);
 	~PhiPsi_Trans(void);
 	int PhiPsi_MAXIMAL;
 

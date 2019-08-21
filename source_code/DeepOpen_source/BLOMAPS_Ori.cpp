@@ -43,13 +43,13 @@ void BLOMAPS_Ori::Multi_Ali_Create(int num,int len)
 	NewArray2D(&TEMP_ROT,num,12);
 	Pivot_Ali_Temp=new int[len];
 	NewArray2D(&Pivot_Ali,num,len);
-	NewArray2D(&WS_ALIOUT,num,num*len);
+	NewArray2D(&ALIOUT,num,num*len);
 	//real_temp
 	Real_Temp_Ali2=new int[len];
 	Real_Temp_Rot=new double[12];
 	//output
 	NewArray2D(&FIN_ROT,num,12);
-	NewArray2D(&WS_ALIBEST,num,num*len); //this should be LARGE!!
+	NewArray2D(&ALIBEST,num,num*len); //this should be LARGE!!
 }
 void BLOMAPS_Ori::Multi_Ali_Delete(int num,int len)
 {
@@ -71,10 +71,10 @@ void BLOMAPS_Ori::Multi_Ali_Delete(int num,int len)
 	DeleteArray2D(&TEMP_ROT,num);
 	delete [] Pivot_Ali_Temp;
 	DeleteArray2D(&Pivot_Ali,num);
-	DeleteArray2D(&WS_ALIOUT,num);
+	DeleteArray2D(&ALIOUT,num);
 	//output
 	DeleteArray2D(&FIN_ROT,num);
-	DeleteArray2D(&WS_ALIBEST,num);
+	DeleteArray2D(&ALIBEST,num);
 }
 
 //---------------- process ------------//
@@ -248,8 +248,8 @@ double BLOMAPS_Ori::BLOMAPS_Partial(int num,int *len,XYZ **mol,char **ami,int **
 			}
 			//[4]final refine
 			if(PRITNForNOT==1)printf("Final_Refine[%4d][%4d]\r",pp+1,aa+1);
-			//-> the input Pivot_Ali is all-to-one style, the output WS_ALIOUT is MSA style
-			sumtms=Terminal_Refine_Main(pivot,TEMP_ROT,mol,len,num,Pivot_Ali,len[pivot],WS_ALIOUT,WS_TOTLEN,TEMP_ROT,core_len);
+			//-> the input Pivot_Ali is all-to-one style, the output ALIOUT is MSA style
+			sumtms=Terminal_Refine_Main(pivot,TEMP_ROT,mol,len,num,Pivot_Ali,len[pivot],ALIOUT,TOTLEN,TEMP_ROT,core_len);
 			//[5]record best
 			if(sumtms>wsmax)
 			{
@@ -257,8 +257,8 @@ double BLOMAPS_Ori::BLOMAPS_Partial(int num,int *len,XYZ **mol,char **ami,int **
 				maxnum=pivot;
 				core_max=core_len;
 				EqualArray2D(FIN_ROT,TEMP_ROT,INPUT_NUM,12);
-				EqualArray2D(WS_ALIBEST,WS_ALIOUT,INPUT_NUM,WS_TOTLEN);
-				WS_BESTLEN=WS_TOTLEN;
+				EqualArray2D(ALIBEST,ALIOUT,INPUT_NUM,TOTLEN);
+				BESTLEN=TOTLEN;
 			}
 			//printf
 //			printf("->cur[%3d][%3d]->obj[%6.2f]\r",pp+1,aa+1,wsmax);
@@ -266,16 +266,16 @@ double BLOMAPS_Ori::BLOMAPS_Partial(int num,int *len,XYZ **mol,char **ami,int **
 		//termi
 		{
 //			FIN_ROT_REC.push_back(FIN_ROT);
-//			FIN_ALI_REC.push_back(WS_ALIBEST);
+//			FIN_ALI_REC.push_back(ALIBEST);
 			vector <vector <double > > fin_rot_tmp (INPUT_NUM, vector <double >(12));
-			vector <vector <int > > fin_ali_tmp (INPUT_NUM, vector <int >(WS_BESTLEN));
+			vector <vector <int > > fin_ali_tmp (INPUT_NUM, vector <int >(BESTLEN));
 			for(int ii=0;ii<INPUT_NUM;ii++)for(int jj=0;jj<12;jj++)fin_rot_tmp[ii][jj]=FIN_ROT[ii][jj];
-			for(int ii=0;ii<INPUT_NUM;ii++)for(int jj=0;jj<WS_BESTLEN;jj++)fin_ali_tmp[ii][jj]=WS_ALIBEST[ii][jj];
+			for(int ii=0;ii<INPUT_NUM;ii++)for(int jj=0;jj<BESTLEN;jj++)fin_ali_tmp[ii][jj]=ALIBEST[ii][jj];
 			//check overlap
 			int correct=1;
 //			for(int kk=0;kk<(int)FIN_ALI_REC.size();kk++)
 //			{
-//				double overlap_sco=Compare_Two_MSA(fin_ali_tmp,FIN_ALI_REC[kk],WS_BESTLEN,FIN_BEST_LEN[kk],INPUT_NUM);
+//				double overlap_sco=Compare_Two_MSA(fin_ali_tmp,FIN_ALI_REC[kk],BESTLEN,FIN_BEST_LEN[kk],INPUT_NUM);
 //				if(overlap_sco > MSA_COMP_THRES)
 //				{
 //					correct=0;
@@ -287,7 +287,7 @@ double BLOMAPS_Ori::BLOMAPS_Partial(int num,int *len,XYZ **mol,char **ami,int **
 			{
 				FIN_ROT_REC.push_back(fin_rot_tmp);
 				FIN_ALI_REC.push_back(fin_ali_tmp);
-				FIN_BEST_LEN.push_back(WS_BESTLEN);
+				FIN_BEST_LEN.push_back(BESTLEN);
 				FIN_SCO_REC.push_back(wsmax);
 				FIN_PIV_REC.push_back(maxnum);
 				FIN_CORE_LEN.push_back(core_max);

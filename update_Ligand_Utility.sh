@@ -14,7 +14,8 @@ mkdir -p $tmp
 
 #part1 -> download components.cif from ftp://ftp.wwpdb.org/pub/pdb/data/monomers/components.cif
 rm -f $tmp/components.cif
-wget -q ftp://ftp.wwpdb.org/pub/pdb/data/monomers/components.cif -O $tmp/components.cif 
+wget -q ftp://ftp.wwpdb.org/pub/pdb/data/monomers/components.cif.gz -O $tmp/components.cif.gz
+gunzip -q $tmp/components.cif.gz 
 if [ ! -f "$tmp/components.cif" ]
 then
 	echo "file components.cif download error !! "

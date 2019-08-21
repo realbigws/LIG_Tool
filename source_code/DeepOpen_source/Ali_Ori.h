@@ -57,7 +57,7 @@ OTHER RIGHTS.
 class Ali_Ori:virtual public Kabsch
 {
 public:
-	Ali_Ori(int num=3000);
+	Ali_Ori(int num=PROT_MAX_NUM);
 	~Ali_Ori(void);
 	int Ali_Maximal;
 

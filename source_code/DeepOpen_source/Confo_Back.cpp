@@ -541,13 +541,13 @@ Confo_Back::Confo_Back(int num)
 	Confo_Back_CB_Ang=110.0*M_PI/180.0;    // Ca(i)->CB bend
 	Confo_Back_CB_Tor=124.0*M_PI/180.0;    // Ca(i)->CB tort
 	Confo_Back_CB_Dis=1.53;                // Ca(i)->CB dist
-	//WS_Method
-	Confo_Back_WS_CN_Ang=8.76*M_PI/180.0;  // Ca(i)->N angle
-	Confo_Back_WS_CC_Ang=-20.19*M_PI/180.0;// Ca(i)->C angle
-	Confo_Back_WS_CO_Ang=-46.3*M_PI/180.0; // Ca(i)->O angle
-	Confo_Back_WS_CN_Dis=2.41;             // Ca(i)->N dist
-	Confo_Back_WS_CC_Dis=1.51;             // Ca(i)->C dist
-	Confo_Back_WS_CO_Dis=2.36;             // Ca(i)->O dist
+	//Method
+	Confo_Back_CN_Ang=8.76*M_PI/180.0;  // Ca(i)->N angle
+	Confo_Back_CC_Ang=-20.19*M_PI/180.0;// Ca(i)->C angle
+	Confo_Back_CO_Ang=-46.3*M_PI/180.0; // Ca(i)->O angle
+	Confo_Back_CN_Dis=2.41;             // Ca(i)->N dist
+	Confo_Back_CC_Dis=1.51;             // Ca(i)->C dist
+	Confo_Back_CO_Dis=2.36;             // Ca(i)->O dist
 	//create
 	Confo_Back_Init(Confo_Back_Maximal);	
 }
@@ -663,9 +663,9 @@ void Confo_Back::Construct_CB(XYZ N,XYZ Ca,XYZ C,double bend,double tort,double 
 	Cb+=Ca;
 }
 
-//===================== WS's Method ======================//
+//===================== Method ======================//
 //-> special dealing -> moln==2
-int Confo_Back::Recon_Back_WS_2pre(XYZ *mol,char *cle,int moln,XYZ **output,XYZ pre)
+int Confo_Back::Recon_Back_2pre(XYZ *mol,char *cle,int moln,XYZ **output,XYZ pre)
 {
 	if(moln!=2)return -1;
 	XYZ real;
@@ -686,7 +686,7 @@ int Confo_Back::Recon_Back_WS_2pre(XYZ *mol,char *cle,int moln,XYZ **output,XYZ 
 	else case_cle[2]='Q';
 	//build
 	int retv;
-	retv=Recon_Back_WS(case_mol,case_cle,3,case_mcb);
+	retv=Recon_Back(case_mol,case_cle,3,case_mcb);
 	if(retv!=1)return retv;
 	//final
 	int i,j;
@@ -694,7 +694,7 @@ int Confo_Back::Recon_Back_WS_2pre(XYZ *mol,char *cle,int moln,XYZ **output,XYZ 
 	//return
 	return 1;
 }
-int Confo_Back::Recon_Back_WS_2nxt(XYZ *mol,char *cle,int moln,XYZ **output,XYZ nxt)
+int Confo_Back::Recon_Back_2nxt(XYZ *mol,char *cle,int moln,XYZ **output,XYZ nxt)
 {
 	if(moln!=2)return -1;
 	XYZ real;
@@ -715,7 +715,7 @@ int Confo_Back::Recon_Back_WS_2nxt(XYZ *mol,char *cle,int moln,XYZ **output,XYZ 
 	case_cle[2]='Q';
 	//build
 	int retv;
-	retv=Recon_Back_WS(case_mol,case_cle,3,case_mcb);
+	retv=Recon_Back(case_mol,case_cle,3,case_mcb);
 	if(retv!=1)return retv;
 	//final
 	int i,j;
@@ -723,7 +723,7 @@ int Confo_Back::Recon_Back_WS_2nxt(XYZ *mol,char *cle,int moln,XYZ **output,XYZ 
 	//return
 	return 1;
 }
-int Confo_Back::Recon_Back_WS_Two(XYZ *mol,char *cle,int moln,XYZ **output,XYZ pre,XYZ nxt)
+int Confo_Back::Recon_Back_Two(XYZ *mol,char *cle,int moln,XYZ **output,XYZ pre,XYZ nxt)
 {
 	if(moln!=2)return -1;
 	XYZ real;
@@ -751,7 +751,7 @@ int Confo_Back::Recon_Back_WS_Two(XYZ *mol,char *cle,int moln,XYZ **output,XYZ p
 	case_cle[3]='Q';
 	//build
 	int retv;
-	retv=Recon_Back_WS(case_mol,case_cle,4,case_mcb);
+	retv=Recon_Back(case_mol,case_cle,4,case_mcb);
 	if(retv!=1)return retv;
 	//final
 	int i,j;
@@ -760,7 +760,7 @@ int Confo_Back::Recon_Back_WS_Two(XYZ *mol,char *cle,int moln,XYZ **output,XYZ p
 	return 1;
 }
 //-> special dealing -> moln==1
-int Confo_Back::Recon_Back_WS_1pre(XYZ *mol,char *cle,int moln,XYZ **output,XYZ pre)
+int Confo_Back::Recon_Back_1pre(XYZ *mol,char *cle,int moln,XYZ **output,XYZ pre)
 {
 	if(moln!=1)return -1;
 	XYZ real;
@@ -779,7 +779,7 @@ int Confo_Back::Recon_Back_WS_1pre(XYZ *mol,char *cle,int moln,XYZ **output,XYZ 
 	case_cle[2]='Q';
 	//build
 	int retv;
-	retv=Recon_Back_WS(case_mol,case_cle,3,case_mcb);
+	retv=Recon_Back(case_mol,case_cle,3,case_mcb);
 	if(retv!=1)return retv;
 	//final
 	int j;
@@ -787,7 +787,7 @@ int Confo_Back::Recon_Back_WS_1pre(XYZ *mol,char *cle,int moln,XYZ **output,XYZ 
 	//return
 	return 1;
 }
-int Confo_Back::Recon_Back_WS_1nxt(XYZ *mol,char *cle,int moln,XYZ **output,XYZ nxt)
+int Confo_Back::Recon_Back_1nxt(XYZ *mol,char *cle,int moln,XYZ **output,XYZ nxt)
 {
 	if(moln!=1)return -1;
 	XYZ real;
@@ -806,7 +806,7 @@ int Confo_Back::Recon_Back_WS_1nxt(XYZ *mol,char *cle,int moln,XYZ **output,XYZ 
 	case_cle[2]='Q';
 	//build
 	int retv;
-	retv=Recon_Back_WS(case_mol,case_cle,3,case_mcb);
+	retv=Recon_Back(case_mol,case_cle,3,case_mcb);
 	if(retv!=1)return retv;
 	//final
 	int j;
@@ -814,7 +814,7 @@ int Confo_Back::Recon_Back_WS_1nxt(XYZ *mol,char *cle,int moln,XYZ **output,XYZ 
 	//return
 	return 1;
 }
-int Confo_Back::Recon_Back_WS_One(XYZ *mol,char *cle,int moln,XYZ **output,XYZ pre,XYZ nxt)
+int Confo_Back::Recon_Back_One(XYZ *mol,char *cle,int moln,XYZ **output,XYZ pre,XYZ nxt)
 {
 	if(moln!=1)return -1;
 	XYZ real;
@@ -839,7 +839,7 @@ int Confo_Back::Recon_Back_WS_One(XYZ *mol,char *cle,int moln,XYZ **output,XYZ p
 	case_cle[2]='Q';
 	//build
 	int retv;
-	retv=Recon_Back_WS(case_mol,case_cle,3,case_mcb);
+	retv=Recon_Back(case_mol,case_cle,3,case_mcb);
 	if(retv!=1)return retv;
 	//final
 	int j;
@@ -850,7 +850,7 @@ int Confo_Back::Recon_Back_WS_One(XYZ *mol,char *cle,int moln,XYZ **output,XYZ p
 
 //======================= [main] ======================//
 //use 512 bins to separate local continous C-Alpha atoms (CLE) //-> must greater than 3
-int Confo_Back::Recon_Back_WS(XYZ *mol,char *cle,int moln,XYZ **output)  //input CA -> output Backbone (WS's Method)
+int Confo_Back::Recon_Back(XYZ *mol,char *cle,int moln,XYZ **output)  //input CA -> output Backbone (Method)
 {
 	int i,j;
 	char a,b,c;
@@ -891,9 +891,9 @@ int Confo_Back::Recon_Back_WS(XYZ *mol,char *cle,int moln,XYZ **output)  //input
 		tort=Confo_Back_DATA[pos][0];  //Tort
 		vari=Confo_Back_DATA[pos][1];  //Vari
 		//calc
-		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_WS_CN_Ang,tort,Confo_Back_WS_CN_Dis,N);
-		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_WS_CC_Ang,tort,Confo_Back_WS_CC_Dis,C);
-		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_WS_CO_Ang,tort,Confo_Back_WS_CO_Dis,O);
+		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_CN_Ang,tort,Confo_Back_CN_Dis,N);
+		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_CC_Ang,tort,Confo_Back_CC_Dis,C);
+		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_CO_Ang,tort,Confo_Back_CO_Dis,O);
 		//assign
 		//first_res
 		if(i==0)
@@ -923,9 +923,9 @@ int Confo_Back::Recon_Back_WS(XYZ *mol,char *cle,int moln,XYZ **output)  //input
 		tort=Confo_Back_DATA[pos][0];  //Tort
 		vari=Confo_Back_DATA[pos][1];  //Vari
 		//calc
-		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_WS_CN_Ang,tort,Confo_Back_WS_CN_Dis,N);
-		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_WS_CC_Ang,tort,Confo_Back_WS_CC_Dis,C);
-		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_WS_CO_Ang,tort,Confo_Back_WS_CO_Dis,O);
+		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_CN_Ang,tort,Confo_Back_CN_Dis,N);
+		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_CC_Ang,tort,Confo_Back_CC_Dis,C);
+		Construct_Mol(temp_mol[i],temp_mol[i+1],temp_mol[i+2],-1.0*Confo_Back_CO_Ang,tort,Confo_Back_CO_Dis,O);
 		//assign
 		temp_out[i*5+1]=temp_mol[i];        //atom CA(i)
 		temp_out[i*5+2]=C;                  //atom C (i)
@@ -942,8 +942,8 @@ int Confo_Back::Recon_Back_WS(XYZ *mol,char *cle,int moln,XYZ **output)  //input
 }
 
 //================ main function for BROLEN ===============//
-//[WS_Method]
-int Confo_Back::Recon_Back_WS_Main(XYZ *in,char *cle,int moln,XYZ **out)
+//[Method]
+int Confo_Back::Recon_Back_Main(XYZ *in,char *cle,int moln,XYZ **out)
 {
 	int i;
 	int start,len;
@@ -972,7 +972,7 @@ int Confo_Back::Recon_Back_WS_Main(XYZ *in,char *cle,int moln,XYZ **out)
 			{
 				//process
 				len++;
-				Recon_Back_WS(in+start,cle+start,len,out+start);
+				Recon_Back(in+start,cle+start,len,out+start);
 				//printf
 				if(i!=moln-1)
 				{
@@ -996,19 +996,19 @@ int Confo_Back::Recon_Back_WS_Main(XYZ *in,char *cle,int moln,XYZ **out)
 				{
 					BROKEN++;
 					if(Confo_Back_PRINTF==1)printf("BROKEN_MULTI[%d]!!\r",i);
-					//at current version, WS cannot deal with len<3!!! //(now WS can!!)//__110230__//
+					//at current version, we cannot deal with len<3!!! //(now we can!!)//__110230__//
 					if(broke-2<3)
 					{
 						if(broke-2==1) //one case
 						{
-							Recon_Back_WS_One(in+i-broke,cle+i-broke,broke-2,out+i-broke,in[i-broke-1],in[i-2]);
+							Recon_Back_One(in+i-broke,cle+i-broke,broke-2,out+i-broke,in[i-broke-1],in[i-2]);
 						}
 						else           //two case
 						{
-							Recon_Back_WS_Two(in+i-broke,cle+i-broke,broke-2,out+i-broke,in[i-broke-1],in[i-2]);
+							Recon_Back_Two(in+i-broke,cle+i-broke,broke-2,out+i-broke,in[i-broke-1],in[i-2]);
 						}
 					}
-					else Recon_Back_WS(in+i-broke,cle+i-broke,broke-2,out+i-broke);
+					else Recon_Back(in+i-broke,cle+i-broke,broke-2,out+i-broke);
 				}
 				broke=0;
 			}
@@ -1024,19 +1024,19 @@ int Confo_Back::Recon_Back_WS_Main(XYZ *in,char *cle,int moln,XYZ **out)
 	{
 		BROKEN++;
 		if(Confo_Back_PRINTF==1)printf("BROKEN_TERMI[%d]!!\r",i);
-		//at current version, WS cannot deal with len<3!!!  //(now WS can!!)//__110230__//
+		//at current version, we cannot deal with len<3!!!  //(now we can!!)//__110230__//
 		if(broke<3)
 		{
 			if(broke==1) //one case
 			{
-				Recon_Back_WS_1pre(in+moln-broke,cle+moln-broke,broke,out+moln-broke,in[moln-broke-1]);
+				Recon_Back_1pre(in+moln-broke,cle+moln-broke,broke,out+moln-broke,in[moln-broke-1]);
 			}
 			else         //two case
 			{
-				Recon_Back_WS_2pre(in+moln-broke,cle+moln-broke,broke,out+moln-broke,in[moln-broke-1]);
+				Recon_Back_2pre(in+moln-broke,cle+moln-broke,broke,out+moln-broke,in[moln-broke-1]);
 			}
 		}
-		else Recon_Back_WS(in+moln-broke,cle+moln-broke,broke,out+moln-broke);
+		else Recon_Back(in+moln-broke,cle+moln-broke,broke,out+moln-broke);
 	}
 	//final
 	return BROKEN;

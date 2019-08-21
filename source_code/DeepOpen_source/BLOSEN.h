@@ -12,7 +12,7 @@ using namespace std;
 class BLOSEN : public BLOMAPS_Ori, public ZoomIn_Align, public MultiAlign_Cent
 {
 public:
-	BLOSEN(int num=3000);
+	BLOSEN(int num=PROT_MAX_NUM);
 	~BLOSEN(void);
 	int BLOSEN_Maximal;
 

@@ -64,7 +64,7 @@ public:
 	//--- memory_limit ---//__130830__//
 	int PRE_LOAD;     // default 0; only valid for Mol_File and Mol_Load
 	int WARNING_out;  // default 1; printf warning information to stderr
-	int MEMORY_LIMIT; // default (3000)
+	int MEMORY_LIMIT; // default (PROT_MAX_NUM)
 
 	//--PART_II:  input_real_process
 	void range_init(void);

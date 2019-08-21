@@ -19,12 +19,12 @@ Ali_AFP::~Ali_AFP(void)
 }
 
 //---------- create & delete ---------//
-void Ali_AFP::AFP_Create_Linear(int WS_MAX_DIM)
+void Ali_AFP::AFP_Create_Linear(int IN_MAX_DIM)
 {
-	AFP_temp=new int[WS_MAX_DIM];
-	AFP_indx=new int[WS_MAX_DIM];
-	dp_cur_cor=new int[WS_MAX_DIM*5];
-	dp_ori_cor=new int[WS_MAX_DIM*5];
+	AFP_temp=new int[IN_MAX_DIM];
+	AFP_indx=new int[IN_MAX_DIM];
+	dp_cur_cor=new int[IN_MAX_DIM*5];
+	dp_ori_cor=new int[IN_MAX_DIM*5];
 }
 void Ali_AFP::AFP_Delete_Linear(void)
 {
@@ -336,7 +336,7 @@ end:
 //------------------------------------//========================================================//
 //-- FragKill_Dynamic_Programming  --//
 //----------------------------------//
-//================================== WS's Kill NonLinear ======================//__080501__//
+//================================== Kill NonLinear ======================//__080501__//
 //------Kill_Irrelevant_Cor (ori)
 //ori_cor[0][0] totnum
 //ori_cor[0][1] realnum

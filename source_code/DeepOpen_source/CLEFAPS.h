@@ -11,7 +11,7 @@ using namespace std;
 class CLEFAPS : public Ali_Ali3, virtual public Ali_AFP, virtual public CLEPAPS_Ori, virtual public TM_align
 {
 public:
-	CLEFAPS(int num=3000);
+	CLEFAPS(int num=PROT_MAX_NUM);
 	~CLEFAPS(void);
 	int CLEF_Maximal;
 

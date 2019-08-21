@@ -11,7 +11,7 @@ using namespace std;
 class CLEPAPS_Out : virtual public Mol_Out
 {
 public:
-	CLEPAPS_Out(int num=3000);
+	CLEPAPS_Out(int num=PROT_MAX_NUM);
 	~CLEPAPS_Out(void);
 
 //---- variables ----//

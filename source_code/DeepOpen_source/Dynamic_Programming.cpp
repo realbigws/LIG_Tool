@@ -240,20 +240,20 @@ int Advance_Align_Dyna_Prog(int n1,int n2,double *score,double GAP_OPEN,double G
 	const int _S_  = 1;
 	const int _V_  = 2;
 	//init()
-	double WS_MIN=-1000000;
+	double IN_MIN=-1000000;
 	DP_D3[_S_][0*DP_maximal+ 0] = -1;
 	DP_D3[_H_][0*DP_maximal+ 0] = -1;
 	DP_D3[_V_][0*DP_maximal+ 0] = -1;
 	DP_M3[_S_][0*DP_maximal+ 0] = 0;
-	DP_M3[_H_][0*DP_maximal+ 0] = WS_MIN;
-	DP_M3[_V_][0*DP_maximal+ 0] = WS_MIN;
+	DP_M3[_H_][0*DP_maximal+ 0] = IN_MIN;
+	DP_M3[_V_][0*DP_maximal+ 0] = IN_MIN;
 	for (i = 1; i < m; i++) 
 	{
 		DP_D3[_S_][i*DP_maximal+ 0] = _V_;
 		DP_D3[_H_][i*DP_maximal+ 0] = _V_;
 		DP_D3[_V_][i*DP_maximal+ 0] = _V_;
-		DP_M3[_S_][i*DP_maximal+ 0] = WS_MIN;
-		DP_M3[_H_][i*DP_maximal+ 0] = WS_MIN;
+		DP_M3[_S_][i*DP_maximal+ 0] = IN_MIN;
+		DP_M3[_H_][i*DP_maximal+ 0] = IN_MIN;
 		DP_M3[_V_][i*DP_maximal+ 0] = 0;//-(Params::GAP_OPEN + (i-1)*Params::GAP_EXT);
 	}
 	for (j = 1; j < n; j++) 
@@ -261,9 +261,9 @@ int Advance_Align_Dyna_Prog(int n1,int n2,double *score,double GAP_OPEN,double G
 		DP_D3[_S_][0*DP_maximal+ j] = _H_;
 		DP_D3[_H_][0*DP_maximal+ j] = _H_;
 		DP_D3[_V_][0*DP_maximal+ j] = _H_;
-		DP_M3[_S_][0*DP_maximal+ j] = WS_MIN;
+		DP_M3[_S_][0*DP_maximal+ j] = IN_MIN;
 		DP_M3[_H_][0*DP_maximal+ j] = 0;//-(Params::GAP_OPEN + (j-1)*Params::GAP_EXT);
-		DP_M3[_V_][0*DP_maximal+ j] = WS_MIN;
+		DP_M3[_V_][0*DP_maximal+ j] = IN_MIN;
 	}
 	//fill(firstSeq, secondSeq, distFunc);
 	double gap_open;
@@ -388,20 +388,20 @@ int Advance_Align_Dyna_Prog_Double(int n1,int n2,double *score,
 	const int _S_  = 1;
 	const int _V_  = 2;
 	//init()
-	double WS_MIN=-1000000;
+	double IN_MIN=-1000000;
 	DP_D3[_S_][0*DP_maximal+ 0] = -1;
 	DP_D3[_H_][0*DP_maximal+ 0] = -1;
 	DP_D3[_V_][0*DP_maximal+ 0] = -1;
 	DP_M3[_S_][0*DP_maximal+ 0] = 0;
-	DP_M3[_H_][0*DP_maximal+ 0] = WS_MIN;
-	DP_M3[_V_][0*DP_maximal+ 0] = WS_MIN;
+	DP_M3[_H_][0*DP_maximal+ 0] = IN_MIN;
+	DP_M3[_V_][0*DP_maximal+ 0] = IN_MIN;
 	for (i = 1; i < m; i++) 
 	{
 		DP_D3[_S_][i*DP_maximal+ 0] = _V_;
 		DP_D3[_H_][i*DP_maximal+ 0] = _V_;
 		DP_D3[_V_][i*DP_maximal+ 0] = _V_;
-		DP_M3[_S_][i*DP_maximal+ 0] = WS_MIN;
-		DP_M3[_H_][i*DP_maximal+ 0] = WS_MIN;
+		DP_M3[_S_][i*DP_maximal+ 0] = IN_MIN;
+		DP_M3[_H_][i*DP_maximal+ 0] = IN_MIN;
 		DP_M3[_V_][i*DP_maximal+ 0] = i*GAP_HEAD1; //-(Params::GAP_OPEN + (i-1)*Params::GAP_EXT);
 	}
 	for (j = 1; j < n; j++) 
@@ -409,9 +409,9 @@ int Advance_Align_Dyna_Prog_Double(int n1,int n2,double *score,
 		DP_D3[_S_][0*DP_maximal+ j] = _H_;
 		DP_D3[_H_][0*DP_maximal+ j] = _H_;
 		DP_D3[_V_][0*DP_maximal+ j] = _H_;
-		DP_M3[_S_][0*DP_maximal+ j] = WS_MIN;
+		DP_M3[_S_][0*DP_maximal+ j] = IN_MIN;
 		DP_M3[_H_][0*DP_maximal+ j] = j*GAP_HEAD2; //-(Params::GAP_OPEN + (j-1)*Params::GAP_EXT);
-		DP_M3[_V_][0*DP_maximal+ j] = WS_MIN;
+		DP_M3[_V_][0*DP_maximal+ j] = IN_MIN;
 	}
 	//fill(firstSeq, secondSeq, distFunc);
 	double gap_open;
@@ -553,14 +553,14 @@ int Advance_Align_Dyna_Prog_II(int n1,int n2,double *score,double GAP_OPEN,doubl
 	const int _V_  = 2;
 	const int _D_  = 3;
 	//init()
-	double WS_MIN=-1000000;
+	double IN_MIN=-1000000;
 	DP_D3[_S_][0*DP_maximal+ 0] = -1;
 	DP_D3[_H_][0*DP_maximal+ 0] = -1;
 	DP_D3[_V_][0*DP_maximal+ 0] = -1;
 	DP_D3[_D_][0*DP_maximal+ 0] = -1;
 	DP_M3[_S_][0*DP_maximal+ 0] = 0;
-	DP_M3[_H_][0*DP_maximal+ 0] = WS_MIN;
-	DP_M3[_V_][0*DP_maximal+ 0] = WS_MIN;
+	DP_M3[_H_][0*DP_maximal+ 0] = IN_MIN;
+	DP_M3[_V_][0*DP_maximal+ 0] = IN_MIN;
 	DP_M3[_D_][0*DP_maximal+ 0] = 0;
 	for (i = 1; i < m; i++) 
 	{
@@ -568,10 +568,10 @@ int Advance_Align_Dyna_Prog_II(int n1,int n2,double *score,double GAP_OPEN,doubl
 		DP_D3[_H_][i*DP_maximal+ 0] = _V_;
 		DP_D3[_V_][i*DP_maximal+ 0] = _V_;
 		DP_D3[_D_][i*DP_maximal+ 0] = _V_;
-		DP_M3[_S_][i*DP_maximal+ 0] = WS_MIN;
-		DP_M3[_H_][i*DP_maximal+ 0] = WS_MIN;
+		DP_M3[_S_][i*DP_maximal+ 0] = IN_MIN;
+		DP_M3[_H_][i*DP_maximal+ 0] = IN_MIN;
 		DP_M3[_V_][i*DP_maximal+ 0] = 0;
-		DP_M3[_D_][i*DP_maximal+ 0] = WS_MIN;
+		DP_M3[_D_][i*DP_maximal+ 0] = IN_MIN;
 	}
 	for (j = 1; j < n; j++) 
 	{
@@ -579,10 +579,10 @@ int Advance_Align_Dyna_Prog_II(int n1,int n2,double *score,double GAP_OPEN,doubl
 		DP_D3[_H_][0*DP_maximal+ j] = _H_;
 		DP_D3[_V_][0*DP_maximal+ j] = _H_;
 		DP_D3[_D_][0*DP_maximal+ j] = _H_;
-		DP_M3[_S_][0*DP_maximal+ j] = WS_MIN;
+		DP_M3[_S_][0*DP_maximal+ j] = IN_MIN;
 		DP_M3[_H_][0*DP_maximal+ j] = 0;	
-		DP_M3[_V_][0*DP_maximal+ j] = WS_MIN;
-		DP_M3[_D_][0*DP_maximal+ j] = WS_MIN;
+		DP_M3[_V_][0*DP_maximal+ j] = IN_MIN;
+		DP_M3[_D_][0*DP_maximal+ j] = IN_MIN;
 	}
 	//fill(firstSeq, secondSeq, distFunc);
 	double gap_open;
@@ -712,7 +712,7 @@ int Advance_Align_Dyna_Prog_II(int n1,int n2,double *score,double GAP_OPEN,doubl
 	return matches;
 }
 
-//================ WS_Fast_Dynamic_Programming ================//__110730__//
+//================ Fast_Dynamic_Programming ================//__110730__//
 // [motivation]: given an initial alignment during structural alignment,
 // we could only search for a very narrow adjacent area around the alignment.
 // That is to say, the searching space for DP could be restricted in O(n),
@@ -748,7 +748,7 @@ int Normal_Align_Dyna_Prog_Fast(int n1,int n2,double *score,double GAP_OPEN,doub
 	int wsstart,wsend;
 	int prev_start,prev_end;
 	double v1,v2,v3;
-	double WS_MIN=-1000000;
+	double IN_MIN=-1000000;
 	//real_start
 	i=0;
 	wsstart=bound[i].first;
@@ -776,21 +776,21 @@ int Normal_Align_Dyna_Prog_Fast(int n1,int n2,double *score,double GAP_OPEN,doub
 			{
 				if(wsstart!=prev_start) //normal condition
 				{
-					v1=WS_MIN;
+					v1=IN_MIN;
 					v2 = V[cur_index2+ j];
 					if(D[cur_index2+ j]==DIAG) v2 += GAP_OPEN;
 					v3 = V[cur_index2+ j-1] + score[cur_index3+ j-1];
 				}
 				else        //vertical condition
 				{
-					v1=WS_MIN;
+					v1=IN_MIN;
 					if(wsstart==0) v2 = V[cur_index2+ j] + GAP_HEAD;
 					else
 					{
 						v2 = V[cur_index2+ j];
 						if(D[cur_index2+ j]==DIAG) v2 += GAP_OPEN;
 					}
-					v3=WS_MIN;
+					v3=IN_MIN;
 				}
 			}
 			else if(j>prev_end) //[end]
@@ -799,15 +799,15 @@ int Normal_Align_Dyna_Prog_Fast(int n1,int n2,double *score,double GAP_OPEN,doub
 				{
 					v1 = V[cur_index1+ j-1];
 					if(D[cur_index1+ j-1]==DIAG) v1 += GAP_OPEN;
-					v2=WS_MIN;
+					v2=IN_MIN;
 					v3 = V[cur_index2+ j-1] + score[cur_index3+ j-1];
 				}
 				else          //horizontal condition
 				{
 					v1 = V[cur_index1+ j-1];
 					if(D[cur_index1+ j-1]==DIAG) v1 += GAP_OPEN;
-					v2=WS_MIN;
-					v3=WS_MIN;
+					v2=IN_MIN;
+					v3=IN_MIN;
 				}
 			}
 			else //[body]

@@ -275,7 +275,7 @@ void Bioinfo_Code::AMI_CLE_transform(const char *CLE,int *GEN)
 	for(i=0;i<len;i++)GEN[i]=(CLE[i]-'A')+2*CLE_NUM;
 }
 
-//==================== WS_Universal_Version ===================//
+//==================== Universal_Version ===================//
 int Bioinfo_Code::Universal_Calc(int ii,int jj,int len,
 	int *IN1,int *IN2,int mollen1,int mollen2,int InType)
 {

@@ -387,13 +387,13 @@ int BLOSEN::HSFB_Anchor_List_Generate(int pivot,int *In_AFB,int In_Len,int Sele_
 //-> target is first, pivot is second!!
 double BLOSEN::Pairwise_Refine(int p1,int p2,double *ini_rot,int *ali2,double *ret_rot)
 {
-	double tms=WS_CLeFAPS_Part(INPUT_MOL[p1],INPUT_MOL[p2],INPUT_LEN[p1],INPUT_LEN[p2],ini_rot,BN_SFP_L[p1],ali2);
+	double tms=CLeFAPS_Part(INPUT_MOL[p1],INPUT_MOL[p2],INPUT_LEN[p1],INPUT_LEN[p2],ini_rot,BN_SFP_L[p1],ali2);
 	EqualArray(ret_rot,ZM_CURMAT,12);
 	return tms;
 }
 double BLOSEN::Pairwise_Total(int p1,int p2,int *ali2_comp,int *ali2,double *ret_rot)
 {
-	double tms=WS_CLeFAPS_Full(INPUT_MOL[p1],INPUT_MOL[p2],INPUT_LEN[p1],INPUT_LEN[p2],BN_SFP_H[p1],BN_SFP_L[p1],ali2,ali2_comp);
+	double tms=CLeFAPS_Full(INPUT_MOL[p1],INPUT_MOL[p2],INPUT_LEN[p1],INPUT_LEN[p2],BN_SFP_H[p1],BN_SFP_L[p1],ali2,ali2_comp);
 	EqualArray(ret_rot,ZM_FINMAT,12);
 	return tms;
 }

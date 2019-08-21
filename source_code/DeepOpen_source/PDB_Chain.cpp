@@ -111,7 +111,7 @@ int PDB_Chain::calculate_SSE(void)
 	return UNSUPPORT_ERROR;
 }
 
-/*------- WS_Learning -------
+/*------- Learning -------
 //The difference between "at" and operator[] is that, 
 //"at" does range checks. Otherwise, they are the same.
 -----------------------------*/

@@ -118,7 +118,7 @@ void CCD_Head_Proc(string &temp,string &ws3)
 	}
 }
 //---- ligand three digit transfer ---//
-int WS_Ligand_Trans(char code)
+int Ligand_Trans(char code)
 {
 	switch(code)
 	{
@@ -189,7 +189,7 @@ int WS_Ligand_Trans(char code)
 	}
 }
 //----- CAMEO four categories ----//
-void WS_CAMEO_Trans(string &input,string &output)
+void CAMEO_Trans(string &input,string &output)
 {
 	if(input=="HETAI" || input=="HETIC")output="I";
 	else if(input=="HETAIN" || input=="ATOMS" || input=="HETAC" || input=="HETAD")output="O";
@@ -248,7 +248,7 @@ int Chemical_Component_Dictionary_Parsing(string &infile,
 				out2.push_back(finval1);
 				//get code
 				int result=0;
-				for(int i=0;i<3;i++)result+=(WS_Ligand_Trans(outval[i]))*(int)pow(37.0,1.0*i);
+				for(int i=0;i<3;i++)result+=(Ligand_Trans(outval[i]))*(int)pow(37.0,1.0*i);
 				stringstream sss2;
 				sss2<<"case "<<result<<":return "<<count<<";";
 				string finval2=sss2.str();
@@ -261,7 +261,7 @@ int Chemical_Component_Dictionary_Parsing(string &infile,
 			{
 				string value,retval;
 				www>>value;
-				WS_CAMEO_Trans(value,retval);
+				CAMEO_Trans(value,retval);
 				//get pdbx
 				stringstream sss1;
 				sss1<<"case "<<count<<":return \""<<value<<"\";";
@@ -316,7 +316,7 @@ int main(int argc,char **argv)
 		FILE *fp=fopen(out_file.c_str(),"wb");
 		fprintf(fp,"#include \"Ligand_Utility.h\"\n");
 		//out1
-		fprintf(fp,"int WS_Ligand_Num_Code(int code)\n");
+		fprintf(fp,"int Ligand_Num_Code(int code)\n");
 		fprintf(fp,"{\n");
 		fprintf(fp,"switch(code)\n");
 		fprintf(fp,"{\n");
@@ -325,7 +325,7 @@ int main(int argc,char **argv)
 		fprintf(fp,"}\n");
 		fprintf(fp,"}\n");
 		//out2
-		fprintf(fp,"const char* WS_Ligand_Num_Decode(int code)\n");
+		fprintf(fp,"const char* Ligand_Num_Decode(int code)\n");
 		fprintf(fp,"{\n");
 		fprintf(fp,"switch(code)\n");
 		fprintf(fp,"{\n");
@@ -334,7 +334,7 @@ int main(int argc,char **argv)
 		fprintf(fp,"}\n");
 		fprintf(fp,"}\n");
 		//out3
-		fprintf(fp,"const char* WS_Ligand_PDBX(int code)\n");
+		fprintf(fp,"const char* Ligand_PDBX(int code)\n");
 		fprintf(fp,"{\n");
 		fprintf(fp,"switch(code)\n");
 		fprintf(fp,"{\n");
@@ -343,7 +343,7 @@ int main(int argc,char **argv)
 		fprintf(fp,"}\n");
 		fprintf(fp,"}\n");
 		//out4
-		fprintf(fp,"const char* WS_Ligand_CAMEO(int code)\n");
+		fprintf(fp,"const char* Ligand_CAMEO(int code)\n");
 		fprintf(fp,"{\n");
 		fprintf(fp,"switch(code)\n");
 		fprintf(fp,"{\n");

@@ -54,8 +54,8 @@ public:
 	vector <XYZ> PDB_r_point;
 	vector <PDB_Residue> PDB_output;  //-> record total PDB //neo//__090517__//
 	//other_structure
-	vector <int> WS_TOTAL_CHAIN;  //__100604__//
-	vector <char> WS_NAME_CHAIN;  //__100604__//
+	vector <int> TOTAL_CHAIN;  //__100604__//
+	vector <char> NAME_CHAIN;  //__100604__//
 	vector <string> PDB_record_all;
 	//MODRES map
 	map <string,string> PDB_MODRES_Map; //__130830__// -> for MODRES mapping, solve UNK problem

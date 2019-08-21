@@ -10,7 +10,7 @@ using namespace std;
 class CLEFAPS_Main :  public Envo_Align, public CLEFAPS_CLE, public TM_Align_Main
 {
 public:
-	CLEFAPS_Main(int num=3000,int CLESUM=1);
+	CLEFAPS_Main(int num=PROT_MAX_NUM,int CLESUM=1);
 	~CLEFAPS_Main(void);
 
 	//---------- data structure ------------//
@@ -26,22 +26,22 @@ public:
 	int Alignment_Gap_Process(int *ali2_in,int moln1,int moln2,int *ali2_out,
 		int gap_len,int nongap_len);
 	//single match kill
-	double WS_Calc_Frag_Score(int ii,int jj,int *ali1,int *ali2,
+	double IN_Calc_Frag_Score(int ii,int jj,int *ali1,int *ali2,
 		int moln1,int moln2,XYZ *mol1,XYZ *mol2,double *rotmat_);
-	int WS_Ali_To_Cor(int *AFP_Cor,int thres,int moln1,int moln2,int *ali1,int *ali2,
+	int IN_Ali_To_Cor(int *AFP_Cor,int thres,int moln1,int moln2,int *ali1,int *ali2,
 		vector<pair<int,int> > &ws_pair_record);
-	void WS_Elongation(double *rotmat_,double thres,int cutoff,int *ali1,int *ali2,
+	void IN_Elongation(double *rotmat_,double thres,int cutoff,int *ali1,int *ali2,
 		XYZ *mol1,XYZ *mol2,int moln1,int moln2);
 	void FM_Align_Refine(XYZ *mol1,XYZ *mol2,int moln1,int moln2,
 		int *ali2_in,int *ali2_out,double *rotmat_);
 	//gap series kill
-	void WS_Insert_Refine_Single(char *seq1,char *seq2,int start1,int start2,int moln1,int moln2,
+	void Insert_Refine_Single(char *seq1,char *seq2,int start1,int start2,int moln1,int moln2,
 		double *ws_in,char *out1,char *out2,int HEADorTAIL);
-	void WS_Insert_Refine_Total(char *ali1,char *ali2,double *ws_in,int moln1,int moln2,
+	void Insert_Refine_Total(char *ali1,char *ali2,double *ws_in,int moln1,int moln2,
 		char *out1,char *out2,int CutK);
-	void WS_Retreive_Alignment(char *out1,char *out2,int *ali2_,int moln2);
-	void WS_Transform_Ali(int *ali1,int *ali2,int moln1,int moln2,char *ami1,char *ami2,char *out1,char *out2);
-	void WS_Double_Gap_Refine(char *ali1,char *ali2,double *ws_in,int moln1,int moln2,
+	void Retreive_Alignment(char *out1,char *out2,int *ali2_,int moln2);
+	void Transform_Ali(int *ali1,int *ali2,int moln1,int moln2,char *ami1,char *ami2,char *out1,char *out2);
+	void Double_Gap_Refine(char *ali1,char *ali2,double *ws_in,int moln1,int moln2,
 		char *out1,char *out2,int CutK,double thres);
 	double CLEF_Make_Score(Align_Record & align_record,XYZ *mol1,XYZ *mol2,int moln1,int moln2,double *rotmat,int *ali2);
 	void CLEF_Single_Match_Kill(XYZ *mol1,XYZ *mol2,int moln1,int moln2,vector <Align_Record> &tot);

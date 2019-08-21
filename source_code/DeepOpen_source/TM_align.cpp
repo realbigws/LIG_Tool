@@ -240,7 +240,7 @@ double TM_align::TM_Align_Get_Score_Simp_MatchWei(XYZ *mol1,XYZ *mol2,double *ro
 	return ws_sco;
 }
 
-//----------- WS_Test_Score --------------//
+//----------- Test_Score --------------//
 //given alignment, return each parts of our score
 double TM_align::TM_Align_Get_Score_Part_Wei(XYZ *mol1,XYZ *mol2,double *rotmat_,
 	int moln1,int moln2,int *ali2)
@@ -1059,7 +1059,7 @@ void TM_align::TM_Align_Get_Matrix_Bound(XYZ *mol1,XYZ *mol2,int moln1,int moln2
 /*     because it is about 1.5 times faster than a complete N-W code */
 /*     and does not influence much the final structure alignment result. */
 /* ******************************************************************* */
-/* Subroutine */  /* mol2 is fixed!! superimpose mol1 onto mol2  --> added by WS */
+/* Subroutine */  /* mol2 is fixed!! superimpose mol1 onto mol2 */
 int TM_align::TM_Align_Dyna_Prog(int n1,int n2,double *score,int *ali2,
 	double gapopen,double gapextend,int DP_Type)
 {
