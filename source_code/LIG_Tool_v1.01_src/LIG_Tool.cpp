@@ -17,12 +17,12 @@ using namespace std;
 void print_help_msg(void) 
 {
 	cout << "========================================================|" << endl;
-	cout << "LIG_Tool  (version 1.02) [2019.06.02]                   |" << endl;
+	cout << "LIG_Tool  (version 1.03) [2019.09.01]                   |" << endl;
 	cout << "    Extract ligands and chains from official PDB file   |" << endl;
 	cout << "Usage:   ./LIG_Tool <-i input_pdb> [-o out_name]        |" << endl;
 	cout << "         [-p chain_out_root] [-q ligand_out_root]       |" << endl;
 	cout << "         [-n length_cut] [-d distance_cut] [-l log]     |" << endl;
-	cout << "         [-O PC_out] [-T PC_type]                       |" << endl;
+	cout << "         [-O PC_out] [-T PC_type] [-t LG_type]          |" << endl;
 	cout << "--------------------------------------------------------|" << endl;
 	cout << "-i input_pdb : input original PDB file, e.g., 1col.pdb  |" << endl;
 	cout << "-o out_name  : output file name. [default: input_name]  |" << endl;
@@ -33,6 +33,7 @@ void print_help_msg(void)
 	cout << "-l log : output log files (1) or not (0) [default: 0]   |" << endl;
 	cout << "-O PC_root : binding residues in PC [default:null]      |" << endl;
 	cout << "-T PC_type : CA+CB (-1), backbone+CB [0], full atom (1) |" << endl;
+	cout << "-t LG_type : select ligand type. [ default: 'IOPNX']    |" << endl;
 	cout << "========================================================|" << endl;
 	exit(-1);
 }
@@ -46,6 +47,7 @@ double DISTANCE_CUT=4.0;    //ligand distance cutoff
 int LOG_OR_NOT=0;           //default: don't output log
 string PC_ROOT="";          //point cloud output root
 int PC_TYPE=0;              //default: backbone+CB
+string LG_TYPE="IOPNX";     //default: ALL possible ligand type
 
 //-----------------------------------------------------------------------------------------------------------//
 //---- parameter editor ----//
@@ -60,6 +62,7 @@ static option long_options[] =
 	{"log",     no_argument,       NULL, 'l'},
 	{"PCroot",  no_argument,       NULL, 'O'},
 	{"PCtype",  no_argument,       NULL, 'T'},
+	{"LGtype",  no_argument,       NULL, 't'},
 	{0, 0, 0, 0}
 };
 //-----------------------------------------------------------------------------------------------------------//
@@ -72,7 +75,7 @@ void process_args(int argc,char** argv)
 	while(true) 
 	{
 		int option_index=0;
-		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:",
+		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:",
 			   long_options,&option_index);
 		if (opt==-1)break;	
 		switch(opt) 
@@ -103,6 +106,9 @@ void process_args(int argc,char** argv)
 				break;
 			case 'T':
 				PC_TYPE=atoi(optarg);
+				break;
+			case 't':
+				LG_TYPE=optarg;
 				break;
 			default:
 				exit(-1);
@@ -165,6 +171,21 @@ int Ligand_Trans(char code)
 		default:return -1; 
 	} 
 }
+
+//--------- Ligand Type Mapping --------//
+int Ligand_Type(char code) 
+{ 
+	switch(code) 
+	{
+		case 'I': return 0;
+		case 'O': return 1;
+		case 'P': return 2;
+		case 'N': return 3;
+		case 'X': return 4;
+		default:return -1; 
+	} 
+}
+
 
 //================== All_Ligands_Process =============//__110530__//
 //-> ligand_string_to_xyz
@@ -625,10 +646,13 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		PDB.get_backbone_atom(k,xyz);
 		const char *atomname=backbone_atom_name_decode(k);
 		string atom_name=atomname;
+		string pdbind_;
+		PDB.get_PDB_residue_number(pdbind_);
+		int posi_rel=atoi(pdbind_.substr(1,4).c_str());
 		//record as point-cloud
 		pc.push_back(xyz);
 		atom.push_back(atom_name);
-		posi.push_back(posi_val);
+		posi.push_back(posi_rel);
 		resi.push_back(amino);
 		pacc.push_back(pacc_val);
 		//calculate distance
@@ -660,10 +684,13 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		PDB.get_sidechain_atom(k,xyz);
 		const char *atomname=sidechain_atom_name_decode(k,amino);
 		string atom_name=atomname;
+		string pdbind_;
+		PDB.get_PDB_residue_number(pdbind_);
+		int posi_rel=atoi(pdbind_.substr(1,4).c_str());
 		//record as point-cloud
 		pc.push_back(xyz);
 		atom.push_back(atom_name);
-		posi.push_back(posi_val);
+		posi.push_back(posi_rel);
 		resi.push_back(amino);
 		pacc.push_back(pacc_val);
 		//calculate distance
@@ -1103,6 +1130,25 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 	//================= record binding residues in Point-Cloud ==================//__190602__//
 	if(pc_out_dir!="")
 	{
+		//--- filter-out ligands ----//
+		if(LG_TYPE!="")
+		{
+			vector <Ligand_Struc> ligands_filter;
+			for(i=0;i<(int)ligands.size();i++)
+			{
+				char lig_type=ligands[i].lig_type[0];
+				for(k=0;k<(int)LG_TYPE.length();k++)
+				{
+					if(LG_TYPE[k]==lig_type)
+					{
+						ligands_filter.push_back(ligands[i]);
+						break;
+					}
+				}
+			}
+			ligands=ligands_filter;
+		}
+		//--- main process ---//
 		for(i=0;i<chain_size;i++)
 		{
 			//read
@@ -1153,6 +1199,20 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 	return 1; //success
 }
 
+//----- check ligand type string ----//
+int Check_LGtype(string &in)
+{
+	for(int i=0;i<(int)in.length();i++)
+	{
+		if(Ligand_Type(in[i])<0)
+		{
+			fprintf(stderr,"-t LG_TYPE %s should contain 'I', 'O', 'P', 'N', or 'X' \n",in.c_str());
+			exit(-1);
+		}
+	}
+}
+
+
 //============== main ===============//
 int main(int argc, char** argv)
 {
@@ -1189,6 +1249,7 @@ int main(int argc, char** argv)
 			fprintf(stderr,"-T PC_TYPE %d should be -1,0,1 \n",PC_TYPE);
 			exit(-1);
 		}
+		Check_LGtype(LG_TYPE);
 		//assign
 		string input_pdb=INPUT_FILE;
 		string out_name=OUTPUT_NAME;
@@ -1214,6 +1275,4 @@ int main(int argc, char** argv)
 		exit(0);
 	}
 }
-
-
 

@@ -1,6 +1,6 @@
 =================
-LIG_Tool (v1.01)
-date: 2015.02.20
+LIG_Tool (v1.03)
+date: 2019.09.01
 =================
 
 Title:
@@ -54,12 +54,12 @@ Usage:
 ======
 
 ========================================================|
-LIG_Tool  (version 1.02) [2019.06.02]                   |
+LIG_Tool  (version 1.03) [2019.09.01]                   |
     Extract ligands and chains from official PDB file   |
 Usage:   ./LIG_Tool <-i input_pdb> [-o out_name]        |
          [-p chain_out_root] [-q ligand_out_root]       |
          [-n length_cut] [-d distance_cut] [-l log]     |
-         [-O PC_out] [-T PC_type]                       |
+         [-O PC_out] [-T PC_type] [-t LG_type]          |
 --------------------------------------------------------|
 -i input_pdb : input original PDB file, e.g., 1col.pdb  |
 -o out_name  : output file name. [default: input_name]  |
@@ -70,7 +70,9 @@ Usage:   ./LIG_Tool <-i input_pdb> [-o out_name]        |
 -l log : output log files (1) or not (0) [default: 0]   |
 -O PC_root : binding residues in PC [default:null]      |
 -T PC_type : CA+CB (-1), backbone+CB [0], full atom (1) |
+-t LG_type : select ligand type. [ default: 'IOPNX']    |
 ========================================================|
+
 
 
 
