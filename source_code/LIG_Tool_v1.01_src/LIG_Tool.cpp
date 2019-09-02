@@ -36,7 +36,7 @@ void print_help_msg(void)
 	cout << "-T PC_type : CA+CB (-1), backbone+CB [0], full atom (1) |" << endl;
 	cout << "-t LG_type : select ligand type. [ default: 'IOPNX']    |" << endl;
 	cout << "-f filter  : list for filtered ligands. [default:null]  |" << endl;
-	cout << "-m mincut  : min_num of binding atoms. [default:6]      |" << endl;
+	cout << "-m mincut  : min_num of binding residues. [default:1]   |" << endl;
 	cout << "========================================================|" << endl;
 	exit(-1);
 }
@@ -52,7 +52,7 @@ string PC_ROOT="";          //point cloud output root
 int PC_TYPE=0;              //default: backbone+CB
 string LG_TYPE="IOPNX";     //default: ALL possible ligand type
 string LG_FILTER="";        //filtered ligands (default: null)
-int LG_MINCUT=6;            //minimal number of ligand binding atoms (default:6)
+int LG_MINCUT=1;            //minimal number of ligand binding residues (default:1)
 
 //-----------------------------------------------------------------------------------------------------------//
 //---- parameter editor ----//
