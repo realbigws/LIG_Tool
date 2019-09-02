@@ -23,7 +23,7 @@ void print_help_msg(void)
 	cout << "         [-p chain_out_root] [-q ligand_out_root]       |" << endl;
 	cout << "         [-n length_cut] [-d distance_cut] [-l log]     |" << endl;
 	cout << "         [-O PC_out] [-T PC_type] [-t LG_type]          |" << endl;
-	cout << "         [-f filter]                                    |" << endl;
+	cout << "         [-f filter] [-m mincut]                        |" << endl;
 	cout << "--------------------------------------------------------|" << endl;
 	cout << "-i input_pdb : input original PDB file, e.g., 1col.pdb  |" << endl;
 	cout << "-o out_name  : output file name. [default: input_name]  |" << endl;
@@ -36,6 +36,7 @@ void print_help_msg(void)
 	cout << "-T PC_type : CA+CB (-1), backbone+CB [0], full atom (1) |" << endl;
 	cout << "-t LG_type : select ligand type. [ default: 'IOPNX']    |" << endl;
 	cout << "-f filter  : list for filtered ligands. [default:null]  |" << endl;
+	cout << "-m mincut  : min_num of binding atoms. [default:6]      |" << endl;
 	cout << "========================================================|" << endl;
 	exit(-1);
 }
@@ -51,6 +52,7 @@ string PC_ROOT="";          //point cloud output root
 int PC_TYPE=0;              //default: backbone+CB
 string LG_TYPE="IOPNX";     //default: ALL possible ligand type
 string LG_FILTER="";        //filtered ligands (default: null)
+int LG_MINCUT=6;            //minimal number of ligand binding atoms (default:6)
 
 //-----------------------------------------------------------------------------------------------------------//
 //---- parameter editor ----//
@@ -67,6 +69,7 @@ static option long_options[] =
 	{"PCtype",  no_argument,       NULL, 'T'},
 	{"LGtype",  no_argument,       NULL, 't'},
 	{"LGfilt",  no_argument,       NULL, 'f'},
+	{"LGmin",   no_argument,       NULL, 'm'},
 	{0, 0, 0, 0}
 };
 //-----------------------------------------------------------------------------------------------------------//
@@ -79,7 +82,7 @@ void process_args(int argc,char** argv)
 	while(true) 
 	{
 		int option_index=0;
-		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:f:",
+		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:f:m:",
 			   long_options,&option_index);
 		if (opt==-1)break;	
 		switch(opt) 
@@ -116,6 +119,9 @@ void process_args(int argc,char** argv)
 				break;
 			case 'f':
 				LG_FILTER=optarg;
+				break;
+			case 'm':
+				LG_MINCUT=atoi(optarg);
 				break;
 			default:
 				exit(-1);
@@ -1169,7 +1175,7 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			vector <double> min_rec;
 			int count=Compare_Ligand_and_Chain_Complex(pdb,ligands[j].lig_xyz,r_cut,pos_rec,cha_rec,ind_rec,min_rec);
 			//output ligand_log
-			if(LOG_OR_NOT==1)
+			if(LOG_OR_NOT==1 && count>=LG_MINCUT)
 			{
 				if(ligand_log_first==1)
 				{
