@@ -17,12 +17,13 @@ using namespace std;
 void print_help_msg(void) 
 {
 	cout << "========================================================|" << endl;
-	cout << "LIG_Tool  (version 1.03) [2019.09.01]                   |" << endl;
+	cout << "LIG_Tool  (version 1.04) [2019.09.03]                   |" << endl;
 	cout << "    Extract ligands and chains from official PDB file   |" << endl;
 	cout << "Usage:   ./LIG_Tool <-i input_pdb> [-o out_name]        |" << endl;
 	cout << "         [-p chain_out_root] [-q ligand_out_root]       |" << endl;
 	cout << "         [-n length_cut] [-d distance_cut] [-l log]     |" << endl;
 	cout << "         [-O PC_out] [-T PC_type] [-t LG_type]          |" << endl;
+	cout << "         [-f filter]                                    |" << endl;
 	cout << "--------------------------------------------------------|" << endl;
 	cout << "-i input_pdb : input original PDB file, e.g., 1col.pdb  |" << endl;
 	cout << "-o out_name  : output file name. [default: input_name]  |" << endl;
@@ -34,6 +35,7 @@ void print_help_msg(void)
 	cout << "-O PC_root : binding residues in PC [default:null]      |" << endl;
 	cout << "-T PC_type : CA+CB (-1), backbone+CB [0], full atom (1) |" << endl;
 	cout << "-t LG_type : select ligand type. [ default: 'IOPNX']    |" << endl;
+	cout << "-f filter  : list for filtered ligands. [default:null]  |" << endl;
 	cout << "========================================================|" << endl;
 	exit(-1);
 }
@@ -48,6 +50,7 @@ int LOG_OR_NOT=0;           //default: don't output log
 string PC_ROOT="";          //point cloud output root
 int PC_TYPE=0;              //default: backbone+CB
 string LG_TYPE="IOPNX";     //default: ALL possible ligand type
+string LG_FILTER="";        //filtered ligands (default: null)
 
 //-----------------------------------------------------------------------------------------------------------//
 //---- parameter editor ----//
@@ -63,6 +66,7 @@ static option long_options[] =
 	{"PCroot",  no_argument,       NULL, 'O'},
 	{"PCtype",  no_argument,       NULL, 'T'},
 	{"LGtype",  no_argument,       NULL, 't'},
+	{"LGfilt",  no_argument,       NULL, 'f'},
 	{0, 0, 0, 0}
 };
 //-----------------------------------------------------------------------------------------------------------//
@@ -75,7 +79,7 @@ void process_args(int argc,char** argv)
 	while(true) 
 	{
 		int option_index=0;
-		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:",
+		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:f:",
 			   long_options,&option_index);
 		if (opt==-1)break;	
 		switch(opt) 
@@ -109,6 +113,9 @@ void process_args(int argc,char** argv)
 				break;
 			case 't':
 				LG_TYPE=optarg;
+				break;
+			case 'f':
+				LG_FILTER=optarg;
 				break;
 			default:
 				exit(-1);
@@ -966,6 +973,59 @@ int PDB_Residue_To_XYZ_Total(vector <PDB_Residue> &pdb, vector <XYZ> &output)
 	return count;
 }
 
+//--------- filter ligands -----------//
+//-> example
+/*
+HOH
+SO4
+...
+*/
+void Filter_Ligands(string &infile, 
+	vector <Ligand_Struc> &ligands_in,
+	vector <Ligand_Struc> &ligands_out)
+{
+	ifstream fin;
+	string buf,temp;
+	//read
+	fin.open(infile.c_str(), ios::in);
+	if(fin.fail()!=0)
+	{
+		fprintf(stderr,"file %s not found!\n",infile.c_str());
+		exit(-1);
+	}
+	//proc
+	vector <string> filter_list;
+	map <string, int > name_mapping;
+	map<string, int >::iterator iter;
+	int count=0;
+	for(;;)
+	{
+		if(!getline(fin,buf,'\n'))break;
+		if(buf=="")continue;
+		if(buf.length()<3)continue;
+		temp=buf.substr(0,3);
+		iter = name_mapping.find(temp);
+		if(iter == name_mapping.end())
+		{
+			count++;
+			name_mapping.insert(map < string, int >::value_type(temp, count));
+			filter_list.push_back(temp);
+		}
+	}
+	//calc
+	ligands_out.clear();
+	for(int i=0;i<(int)ligands_in.size();i++)
+	{
+		string lig_name=ligands_in[i].lig_name.substr(0,3);
+		iter = name_mapping.find(lig_name);
+		if(iter == name_mapping.end())
+		{
+			ligands_out.push_back(ligands_in[i]);
+		}
+	}
+}
+
+
 //-> Extract all chains for ligands
 //[note]: len_cut -> for pdb_chain
 //        r_cut   -> for ligand
@@ -994,6 +1054,58 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 	vector <Ligand_Struc> ligands;
 	retv=PDB_Extract_Ligand(file,ligands);
 	if(retv<0)return 0; //failed
+
+	//--- filter-out ligands ----//type
+	if(LG_TYPE!="")
+	{
+		vector <Ligand_Struc> ligands_filter;
+		for(int i=0;i<(int)ligands.size();i++)
+		{
+			char lig_type=ligands[i].lig_type[0];
+			for(int k=0;k<(int)LG_TYPE.length();k++)
+			{
+				if(LG_TYPE[k]==lig_type)
+				{
+					ligands_filter.push_back(ligands[i]);
+					break;
+				}
+			}
+		}
+		ligands=ligands_filter;
+	}
+	//--- filter-out ligands ----//name
+	if(LG_FILTER!="")
+	{
+		vector <Ligand_Struc> ligands_filter;
+		Filter_Ligands(LG_FILTER,ligands,ligands_filter);
+		ligands=ligands_filter;
+	}
+	//--- output ligand ----//
+	{
+		for(int i=0;i<(int)ligands.size();i++)
+		{
+			string cur_nam=out_name+"_"+ligands[i].lig_name;
+			string outname=ligand_out_dir+"/"+cur_nam+".pdb";
+			FILE *fp=fopen(outname.c_str(),"wb");
+			for(int k=0;k<(int)ligands[i].lig_data.size();k++)
+			{
+				fprintf(fp,"%s\n",ligands[i].lig_data[k].c_str());
+			}
+			fclose(fp);
+		}
+		if(LOG_OR_NOT==1 && (int)ligands.size()>0)
+		{
+			string log_file=out_name+".ligand_size";
+			FILE *f2=fopen(log_file.c_str(),"wb");
+			for(int i=0;i<(int)ligands.size();i++)
+			{
+				string cur_nam=out_name+"_"+ligands[i].lig_name;
+				fprintf(f2,"%s %d\n",cur_nam.c_str(),ligands[i].lig_moln);
+			}
+			fclose(f2);
+		}
+	}
+
 	//chain-ligand process
 	int i,j,k;
 	int moln;
@@ -1056,12 +1168,6 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			vector <string> ind_rec;
 			vector <double> min_rec;
 			int count=Compare_Ligand_and_Chain_Complex(pdb,ligands[j].lig_xyz,r_cut,pos_rec,cha_rec,ind_rec,min_rec);
-			//output ligand
-			cur_nam=out_name+chain+"_"+ligands[j].lig_name;
-			outname=ligand_out_dir+"/"+cur_nam+".pdb";
-			fp=fopen(outname.c_str(),"wb");
-			for(k=0;k<(int)ligands[j].lig_data.size();k++)fprintf(fp,"%s\n",ligands[j].lig_data[k].c_str());
-			fclose(fp);
 			//output ligand_log
 			if(LOG_OR_NOT==1)
 			{
@@ -1074,6 +1180,7 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 					log_file=out_name+".ligand_chain";
 					f3=fopen(log_file.c_str(),"wb");
 				}
+				cur_nam=out_name+chain+"_"+ligands[j].lig_name;
 				fprintf(f2,"%s -> ",cur_nam.c_str());
 				for(k=0;k<count;k++)fprintf(f2,"%d|%s|%c|%3.1f ",pos_rec[k]+1,ind_rec[k].c_str(),cha_rec[k],min_rec[k]);
 				fprintf(f2,"\n");
@@ -1130,24 +1237,6 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 	//================= record binding residues in Point-Cloud ==================//__190602__//
 	if(pc_out_dir!="")
 	{
-		//--- filter-out ligands ----//
-		if(LG_TYPE!="")
-		{
-			vector <Ligand_Struc> ligands_filter;
-			for(i=0;i<(int)ligands.size();i++)
-			{
-				char lig_type=ligands[i].lig_type[0];
-				for(k=0;k<(int)LG_TYPE.length();k++)
-				{
-					if(LG_TYPE[k]==lig_type)
-					{
-						ligands_filter.push_back(ligands[i]);
-						break;
-					}
-				}
-			}
-			ligands=ligands_filter;
-		}
 		//--- main process ---//
 		for(i=0;i<chain_size;i++)
 		{
@@ -1275,4 +1364,6 @@ int main(int argc, char** argv)
 		exit(0);
 	}
 }
+
+
 

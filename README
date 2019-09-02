@@ -96,3 +96,18 @@ Running example:
 
 ./LIG_Tool -i examples/1paz.pdb -O ./ 
 
+----------------------------------
+
+4. generate scPDB-like result
+
+./LIG_Tool -i examples/10mh.pdb -l 1 -d 6.5 -O ./ -T 1 -t 'OPX'
+
+----------------------------------
+
+5. filter a given ligand
+
+./LIG_Tool -i examples/1paz.pdb -l 1 -f filt
+
+
+
+
