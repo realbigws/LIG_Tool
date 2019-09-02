@@ -1190,8 +1190,9 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 				fprintf(f2,"%s -> ",cur_nam.c_str());
 				for(k=0;k<count;k++)fprintf(f2,"%d|%s|%c|%3.1f ",pos_rec[k]+1,ind_rec[k].c_str(),cha_rec[k],min_rec[k]);
 				fprintf(f2,"\n");
+				//has ligand
+				has_ligand++;
 			}
-			has_ligand++;
 		}
 		if(LOG_OR_NOT==1)
 		{
