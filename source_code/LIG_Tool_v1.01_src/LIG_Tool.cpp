@@ -640,7 +640,7 @@ int Compare_Ligand_and_Chain_Complex(vector <PDB_Residue> &protein, vector <XYZ>
 //================= for Point-Cloud ===================//__190602__//
 //-> record point-cloud
 void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, vector <Ligand_Struc> &ligands, 
-	double r_cut, vector <XYZ> &pc, vector <string> &atom, 
+	double r_cut, vector <XYZ> &pc, vector <string> &atom, vector <int> &atom_lab,
 	vector <int> &posi, vector <char> &resi, vector <char> &label, vector <int> &pacc)
 {
 	int i,j,k;
@@ -665,6 +665,7 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		//record as point-cloud
 		pc.push_back(xyz);
 		atom.push_back(atom_name);
+		atom_lab.push_back(k);
 		posi.push_back(posi_rel);
 		resi.push_back(amino);
 		pacc.push_back(pacc_val);
@@ -703,6 +704,7 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		//record as point-cloud
 		pc.push_back(xyz);
 		atom.push_back(atom_name);
+		atom_lab.push_back(k+4);
 		posi.push_back(posi_rel);
 		resi.push_back(amino);
 		pacc.push_back(pacc_val);
@@ -729,11 +731,12 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 
 //-> extract ALL residues
 void Residue_Ligand_PC(vector <PDB_Residue> &chain, vector <int> &pacc_val, vector <Ligand_Struc> &ligands, 
-	double r_cut, vector <XYZ> &pc, vector <string> &atom, 
+	double r_cut, vector <XYZ> &pc, vector <string> &atom, vector <int> &atom_lab,
 	vector <int> &posi, vector <char> &resi, vector <char> &label, vector <int> &pacc)
 {
 	pc.clear();
 	atom.clear();
+	atom_lab.clear();
 	posi.clear();
 	resi.clear();
 	label.clear();
@@ -741,7 +744,7 @@ void Residue_Ligand_PC(vector <PDB_Residue> &chain, vector <int> &pacc_val, vect
 	int number=(int)chain.size();
 	for(int i=0;i<number;i++)
 	{
-		Residue_Ligand_Distance_PC(chain[i],i+1,pacc_val[i],ligands,r_cut,pc,atom,posi,resi,label,pacc);
+		Residue_Ligand_Distance_PC(chain[i],i+1,pacc_val[i],ligands,r_cut,pc,atom,atom_lab,posi,resi,label,pacc);
 	}
 }
 
@@ -781,11 +784,12 @@ void Calculate_ACC(vector <PDB_Residue> &chain, vector <int> &pAcc)
 
 //-> filter point-cloud
 void Filter_PointCloud(int type,
-	vector <XYZ> &pc_in, vector <string> &atom_in, vector <int> &posi_in, vector <char> &resi_in, vector <char> &label_in, vector <int> &pacc_in,
-	vector <XYZ> &pc_out, vector <string> &atom_out, vector <int> &posi_out, vector <char> &resi_out, vector <char> &label_out, vector <int> &pacc_out)
+	vector <XYZ> &pc_in, vector <string> &atom_in, vector <int> &atomlab_in, vector <int> &posi_in, vector <char> &resi_in, vector <char> &label_in, vector <int> &pacc_in,
+	vector <XYZ> &pc_out, vector <string> &atom_out, vector <int> &atomlab_out, vector <int> &posi_out, vector <char> &resi_out, vector <char> &label_out, vector <int> &pacc_out)
 {
 	pc_out.clear();
 	atom_out.clear();
+	atomlab_out.clear();
 	posi_out.clear();
 	resi_out.clear();
 	label_out.clear();
@@ -802,6 +806,7 @@ void Filter_PointCloud(int type,
 			{
 				pc_out.push_back(pc_in[i]);
 				atom_out.push_back(atom_in[i]);
+				atomlab_out.push_back(atomlab_in[i]);
 				posi_out.push_back(posi_in[i]);
 				resi_out.push_back(resi_in[i]);
 				label_out.push_back(label_in[i]);
@@ -814,6 +819,7 @@ void Filter_PointCloud(int type,
 			{
 				pc_out.push_back(pc_in[i]);
 				atom_out.push_back(atom_in[i]);
+				atomlab_out.push_back(atomlab_in[i]);
 				posi_out.push_back(posi_in[i]);
 				resi_out.push_back(resi_in[i]);
 				label_out.push_back(label_in[i]);
@@ -826,6 +832,7 @@ void Filter_PointCloud(int type,
 			if(resi_in[i]=='G' && atom_name=="CB ")continue;
 			pc_out.push_back(pc_in[i]);
 			atom_out.push_back(atom_in[i]);
+			atomlab_out.push_back(atomlab_in[i]);
 			posi_out.push_back(posi_in[i]);
 			resi_out.push_back(resi_in[i]);
 			label_out.push_back(label_in[i]);
@@ -836,13 +843,13 @@ void Filter_PointCloud(int type,
 
 //-> output PC to file
 void Output_File_PC(FILE *fp,
-	vector <XYZ> &pc, vector <string> &atom, 
+	vector <XYZ> &pc, vector <string> &atom, vector <int> &atom_lab,
 	vector <int> &posi, vector <char> &resi, vector <char> &label, vector <int> &pacc)
 {
 	for(long i=0;i<(long)pc.size();i++)
 	{
-		fprintf(fp,"%5d %c%c %8.3f %8.3f %8.3f %c %3d\n",
-			posi[i],resi[i],atom[i][0],pc[i].X,pc[i].Y,pc[i].Z,label[i],pacc[i]);
+		fprintf(fp,"%5d %c%c%c %8.3f %8.3f %8.3f %c %3d\n",
+			posi[i],resi[i],atom[i][0],atom_lab[i]+'a',pc[i].X,pc[i].Y,pc[i].Z,label[i],pacc[i]);
 	}
 }
 
@@ -1267,27 +1274,29 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			//calculate point-cloud
 			vector <XYZ> pc_in;
 			vector <string> atom_in;
+			vector <int> atomlab_in;
 			vector <int> posi_in;
 			vector <char> resi_in;
 			vector <char> label_in;
 			vector <int> pacc_in;
-			Residue_Ligand_PC(pdb,pacc,ligands,r_cut,pc_in,atom_in,
+			Residue_Ligand_PC(pdb,pacc,ligands,r_cut,pc_in,atom_in,atomlab_in,
 				posi_in,resi_in,label_in,pacc_in);
 			//filter point-cloud according to type
 			vector <XYZ> pc_out;
 			vector <string> atom_out;
+			vector <int> atomlab_out;
 			vector <int> posi_out;
 			vector <char> resi_out;
 			vector <char> label_out;
 			vector <int> pacc_out;
 			Filter_PointCloud(PC_TYPE,
-				pc_in,atom_in,posi_in,resi_in,label_in,pacc_in,
-				pc_out,atom_out,posi_out,resi_out,label_out,pacc_out);
+				pc_in,atom_in,atomlab_in,posi_in,resi_in,label_in,pacc_in,
+				pc_out,atom_out,atomlab_out,posi_out,resi_out,label_out,pacc_out);
 			//output point-cloud to file
 			cur_nam=out_name+chain; 
 			outname=pc_out_dir+"/"+cur_nam+".pc_xyz";
 			fp=fopen(outname.c_str(),"wb");
-			Output_File_PC(fp,pc_out,atom_out,posi_out,resi_out,label_out,pacc_out);
+			Output_File_PC(fp,pc_out,atom_out,atomlab_out,posi_out,resi_out,label_out,pacc_out);
 			fclose(fp);
 		}
 	}

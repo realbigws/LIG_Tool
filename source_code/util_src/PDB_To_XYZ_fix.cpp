@@ -39,6 +39,309 @@ void getRootName(string &in,string &out,char slash)
 	else out=in.substr(0,i);
 }
 
+//------- int to string --------//
+template <typename T>
+string NumberToString( T Number )
+{
+	ostringstream ss;
+	ss << Number;
+	return ss.str();
+}
+
+
+
+//----------- SideChain_Related ------------//
+//function (input three-digit atom)
+int WWW_PDB_atom_name_hashing(const char *atom)
+{
+	int i;
+	int result=0;
+	int pos;
+	int len=(int)strlen(atom);
+	int rellen;
+	// modify by wangsheng, 2011.04.30
+	rellen=len<3?len:3;
+	// modify by shaomingfu, 2011.04.12
+	if(len!=3)len=3;
+	for(i=0;i<rellen;i++)
+	{
+		if(atom[i]==' ')pos=0;
+		else if(atom[i]>='A'&&atom[i]<='Z')pos=atom[i]-'A';
+		else if(atom[i]>='0'&&atom[i]<='9')pos=atom[i]-'0';
+		else pos=0;
+		result+=(int)(pow(26.0,1.0*(len-i-1)))*pos;
+	}
+	return result;
+}
+//backbone 
+int WWW_backbone_atom_name_encode(const char *atom)
+{
+	int pos=WWW_PDB_atom_name_hashing(atom);
+	switch(pos)
+	{
+		case 8788:return 0;
+		case 1352:
+		{
+			int len=(int)strlen(atom);
+			if(len<2)return -1;
+			char add=atom[1]; //second atom
+			switch(add)
+			{
+				case 'A':return 1;
+				case ' ':return 2;
+				default:return -1;
+			}
+		}
+		case 9464:return 3;
+		default:return -1;
+	}
+}
+//sidechain (ARNDCQEGHILKMFPSTWYVZ) 
+int WWW_sidechain_atom_name_encode(const char *atom, char amino)
+{
+	int pos = WWW_PDB_atom_name_hashing(atom);
+	switch(amino)
+	{
+		case 'A':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				default:return -1;
+			}
+		}
+		case 'R':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 1430:return 2;
+				case 8892:return 3;
+				case 2002:return 4;
+				case 8971:return 5;
+				case 8972:return 6;
+				default:return -1;
+			}
+		}
+		case 'N':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 9543:return 2;
+				case 8868:return 3;
+				default:return -1;
+			}
+		}
+		case 'D':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 9543:return 2;
+				case 9544:return 3;
+				default:return -1;
+			}
+		}
+		case 'C':
+		{
+			switch(pos)
+			{
+				case 1378 :return 0;
+				case 12324:return 1;
+				default:return -1;
+			}
+		}
+		case 'Q':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 1430:return 2;
+				case 9569:return 3;
+				case 8894:return 4;
+				default:return -1;
+			}
+		}
+		case 'E':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 1430:return 2;
+				case 9569:return 3;
+				case 9570:return 4;
+				default:return -1;
+			}
+		}
+		case 'G':
+		{
+			switch(pos)
+			{
+				case 1378:return 0; //note: pseudo CB(=CA)
+				default:return -1;
+			}
+		}
+		case 'H':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 8867:return 2;
+				case 1432:return 3;
+				case 1457:return 4;
+				case 8894:return 5;
+				default:return -1;
+			}
+		}
+		case 'I':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1509:return 1;
+				case 1510:return 2;
+				case 1431:return 3;
+				default:return -1;
+			}
+		}
+		case 'L':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 1431:return 2;
+				case 1432:return 3;
+				default:return -1;
+			}
+		}
+		case 'K':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 1430:return 2;
+				case 1456:return 3;
+				case 9438:return 4;
+				default:return -1;
+			}
+		}
+		case 'M':
+		{
+			switch(pos)
+			{
+				case 1378 :return 0;
+				case 1508 :return 1;
+				case 12246:return 2;
+				case 1456 :return 3;
+				default:return -1;
+			}
+		}
+		case 'F':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 1431:return 2;
+				case 1432:return 3;
+				case 1457:return 4;
+				case 1458:return 5;
+				case 2002:return 6;
+				default:return -1;
+			}
+		}
+		case 'P':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 1430:return 2;
+				default:return -1;
+			}
+		}
+		case 'S':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 9620:return 1;
+				default:return -1;
+			}
+		}
+		case 'T':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 9621:return 1;
+				case 1510:return 2;
+				default:return -1;
+			}
+		}
+		case 'W':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 1431:return 2;
+				case 1432:return 3;
+				case 8893:return 4;
+				case 1458:return 5;
+				case 1459:return 6;
+				case 2004:return 7;
+				case 2005:return 8;
+				case 1536:return 9;
+				default:return -1;
+			}
+		}
+		case 'Y':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1508:return 1;
+				case 1431:return 2;
+				case 1432:return 3;
+				case 1457:return 4;
+				case 1458:return 5;
+				case 2002:return 6;
+				case 9646:return 7;
+				default:return -1;
+			}
+		}
+		case 'V':
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				case 1509:return 1;
+				case 1510:return 2;
+				default:return -1;
+			}
+		}
+		case 'X':  //only consider CB!! (alanine model)
+		{
+			switch(pos)
+			{
+				case 1378:return 0;
+				default:return -1;
+			}
+		}
+		default:return -1;
+	}
+}
+
 
 //----------- AA three to one ---------//
 char WWW_Three2One_III(const char *input)
@@ -80,19 +383,35 @@ char WWW_Three2One_III(const char *input)
 
 //========= XYZ format for point-cloud ==========//
 /*
-    1 MN  -30.766   33.288   73.186 0  43
-    1 MC  -29.721   33.119   72.137 0  43
-    1 MC  -30.322   33.150   70.741 0  43
-    1 MO  -31.535   33.139   70.580 0  43
-    1 MC  -28.881   31.843   72.350 0  43
-    1 MC  -29.636   30.528   72.448 0  43
-    1 MS  -28.543   29.109   72.790 0  43
-    1 MC  -28.005   28.655   71.145 0  43
-    2 IN  -29.448   33.231   69.748 0  38
-    2 IC  -29.800   33.305   68.344 0  38
+    6 DOg  -22.389   29.406   56.176
+    6 DOh  -23.720   31.160   56.319
+    7 KNa  -22.679   27.076   60.272
+    7 KCb  -21.836   26.578   61.340
+    7 KCc  -20.356   26.635   60.950
+    7 KOd  -19.746   25.631   60.582
+    7 KCe  -22.307   25.189   61.783
+    7 KCf  -23.751   25.237   62.298
+    7 KCg  -24.043   24.207   63.371
+    7 KCh  -25.357   24.538   64.095
+    7 KNi  -25.610   23.600   65.237
+    8 QNa  -19.785   27.829   61.073
+    8 QCb  -18.384   28.110   60.732
+    8 QCc  -17.293   27.383   61.502
+    8 QOd  -16.145   27.388   61.063
+...
 */
 
 //--------- PDB_To_XYZ_fix ----------//
+//-> PDB format:
+/*
+ATOM    496  N   MET A   1     -30.766  33.288  73.186  1.00 19.31      A    N
+ATOM    497  CA  MET A   1     -29.721  33.119  72.137  1.00 18.15      A    C
+ATOM    498  C   MET A   1     -30.322  33.150  70.741  1.00 19.44      A    C
+ATOM    499  O   MET A   1     -31.535  33.139  70.580  1.00 20.69      A    O
+ATOM    500  CB  MET A   1     -28.881  31.843  72.350  1.00 16.43      A    C
+ATOM    501  CG  MET A   1     -29.636  30.528  72.448  1.00 17.15      A    C
+...
+*/
 void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 {
 	ifstream fin;
@@ -123,15 +442,27 @@ void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 		char c=WWW_Three2One_III(temp.c_str());
 		char h=buf[77];
 		//resi
+		string resi_str;
 		if(resi_type<0)
 		{
-			temp=buf.substr(22,4);
-			resi=atoi(temp.c_str());
+			resi_str=buf.substr(22,5);
 		}
 		else
 		{
-			resi=resi_type;
+			resi_str=NumberToString(resi_type);
 		}
+		//atom
+		temp=buf.substr(13,3);
+		int back_ret=WWW_backbone_atom_name_encode(temp.c_str());
+		int side_ret=WWW_sidechain_atom_name_encode(temp.c_str(),c);
+		if((back_ret<0&&side_ret<0)||(back_ret>=0&&side_ret>=0)) //BAD!!
+		{
+			fprintf(stderr,"WARNING!!! BAD_ATOM!!!\n%s\n",buf.c_str());
+			continue;
+		}
+		int atom_encode=0;
+		if(back_ret>=0)atom_encode=back_ret;
+		if(side_ret>=0)atom_encode=4+side_ret;
 		//mol
 		temp=buf.substr(30,8);
 		double x=atof(temp.c_str());
@@ -140,8 +471,8 @@ void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 		temp=buf.substr(46,8);
 		double z=atof(temp.c_str());
 		//output
-		fprintf(fp,"%5d %c%c %8.3f %8.3f %8.3f \n",
-			resi,c,h,x,y,z);
+		fprintf(fp,"%5s %c%c%c %8.3f %8.3f %8.3f \n",
+			resi_str.c_str(),c,h,atom_encode+'a',x,y,z);
 	}
 }
 
@@ -167,4 +498,5 @@ int main(int argc,char **argv)
 		exit(0);
 	}
 }
+
 

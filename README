@@ -118,3 +118,12 @@ util/PDB_To_XYZ_fix 1paz_CU__0___.pdb 1paz_CU__0___.xyz 1
 util/XYZ_ContResi 1pazA.xyz 1paz_CU__0___.xyz 4.0 1pazA.pc_xyz 1
 
 
+----------------------------------
+
+7. conversion between PDB and XYZ
+
+./LIG_Tool -i examples/1paz.pdb
+util/PDB_To_XYZ_fix 1pazA.pdb 1pazA.xyz -1
+util/XYZ_To_PDB_pc 1pazA.xyz 1pazA.pdb_pc A
+
+
