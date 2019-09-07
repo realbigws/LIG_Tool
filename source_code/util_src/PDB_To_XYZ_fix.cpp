@@ -425,6 +425,7 @@ void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 	}
 	int len;
 	int resi;
+	string type;
 	for(;;)
 	{
 		if(!getline(fin,buf,'\n'))break;
@@ -437,6 +438,7 @@ void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 		if(len<4)continue;
 		temp=buf.substr(0,4);
 		if(temp!="ATOM"&&temp!="HETA")continue;
+		type=temp;
 		//ami
 		temp=buf.substr(17,3);
 		char c=WWW_Three2One_III(temp.c_str());
@@ -452,17 +454,24 @@ void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 			resi_str=NumberToString(resi_type);
 		}
 		//atom
-		temp=buf.substr(13,3);
-		int back_ret=WWW_backbone_atom_name_encode(temp.c_str());
-		int side_ret=WWW_sidechain_atom_name_encode(temp.c_str(),c);
-		if((back_ret<0&&side_ret<0)||(back_ret>=0&&side_ret>=0)) //BAD!!
+		char atom_char='!';
+		if(type=="ATOM"&&c!='X')
 		{
-			fprintf(stderr,"WARNING!!! BAD_ATOM!!!\n%s\n",buf.c_str());
-			continue;
+			temp=buf.substr(13,3);
+			int atom_encode=0;
+			int back_ret=WWW_backbone_atom_name_encode(temp.c_str());
+			int side_ret=WWW_sidechain_atom_name_encode(temp.c_str(),c);
+			if((back_ret<0&&side_ret<0)||(back_ret>=0&&side_ret>=0)) //BAD!!
+			{
+				fprintf(stderr,"WARNING!!! BAD_ATOM!!!\n%s\n",buf.c_str());
+			}
+			else
+			{
+				if(back_ret>=0)atom_encode=back_ret;
+				if(side_ret>=0)atom_encode=4+side_ret;
+			}
+			atom_char=atom_encode+'a';
 		}
-		int atom_encode=0;
-		if(back_ret>=0)atom_encode=back_ret;
-		if(side_ret>=0)atom_encode=4+side_ret;
 		//mol
 		temp=buf.substr(30,8);
 		double x=atof(temp.c_str());
@@ -472,7 +481,7 @@ void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 		double z=atof(temp.c_str());
 		//output
 		fprintf(fp,"%5s %c%c%c %8.3f %8.3f %8.3f \n",
-			resi_str.c_str(),c,h,atom_encode+'a',x,y,z);
+			resi_str.c_str(),c,h,atom_char,x,y,z);
 	}
 }
 
