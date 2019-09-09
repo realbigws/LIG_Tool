@@ -112,17 +112,30 @@ Running example:
 
 6. point-cloud form with ligand label
 
+#-> dump ligands
 ./LIG_Tool -i examples/1paz.pdb -l 1
+
+#-> label point-cloud at ligand-level
 util/PDB_To_XYZ_fix 1pazA.pdb 1pazA.xyz -1
 util/PDB_To_XYZ_fix 1paz_CU__0___.pdb 1paz_CU__0___.xyz 1
 util/XYZ_ContResi 1pazA.xyz 1paz_CU__0___.xyz 6.5 1pazA.pc_xyz 1
 
 or, use the util/multi_ligand_dump.sh script
 
+#-> alternative approach
 echo "1pazA" > proc_list
 util/multi_ligand_dump.sh -i proc_list -o out_root -r ./ -d 6.5
 
 The two files 'out_root/1pazA_atom.xyz' and '1pazA.pc_xyz' shall be the same.
+
+Additionaly, we may also keep the additional info in the original point-cloud file:
+
+#-> dump ligands in original point-cloud file
+./LIG_Tool -i examples/1paz.pdb -l 1 -O ./ -T 1
+
+#-> label point-cloud at ligand-level 
+util/PDB_To_XYZ_fix 1paz_CU__0___.pdb 1paz_CU__0___.xyz 1
+util/XYZ_ContResi 1pazA.pc_xyz 1paz_CU__0___.xyz 4.0 1pazA.pcl_xyz 1
 
 
 ----------------------------------

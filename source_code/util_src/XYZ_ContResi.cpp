@@ -57,7 +57,8 @@ void getRootName(string &in,string &out,char slash)
 
 //--------- load XYZ ----------//
 void Load_XYZ(string &fn,vector <vector <vector <double> > > &xyz,
-	vector <vector <string> > &str, vector <string> &resi)
+	vector <vector <string> > &str, vector <vector <string> > &remain,
+	vector <string> &resi)
 {
 	ifstream fin;
 	string buf,temp;
@@ -71,9 +72,11 @@ void Load_XYZ(string &fn,vector <vector <vector <double> > > &xyz,
 	xyz.clear();
 	str.clear();
 	resi.clear();
+	remain.clear();
 	vector <double> point(3);
 	vector <vector <double> > xyz_tmp;
 	vector <string> str_tmp;
+	vector <string> remain_tmp;
 	string prev="";
 	string str_rec;
 	int first=1;
@@ -91,21 +94,32 @@ void Load_XYZ(string &fn,vector <vector <vector <double> > > &xyz,
 		{
 			xyz.push_back(xyz_tmp);
 			str.push_back(str_tmp);
+			remain.push_back(remain_tmp);
 			resi.push_back(prev);
 			xyz_tmp.clear();
 			str_tmp.clear();
+			remain_tmp.clear();
 			prev=temp;
 		}
 		www>>temp;
 		str_tmp.push_back(temp);
 		www>>point[0]>>point[1]>>point[2];
 		xyz_tmp.push_back(point);
+		//remain
+		string remain_rec="";
+		for(;;)
+		{
+			if(! (www>>temp) )break;
+			remain_rec=remain_rec+temp+" ";
+		}
+		remain_tmp.push_back(remain_rec);
 	}
 	//termi
 	if(first==0)
 	{
 		xyz.push_back(xyz_tmp);
 		str.push_back(str_tmp);
+		remain.push_back(remain_tmp);
 		resi.push_back(prev);
 	}
 }
@@ -263,11 +277,12 @@ void Search_Binding_Residue(double thres,
 //--- atom_level ----//
 void Output_PointCloud_AtomLevel(FILE *fp, 	
 	vector <vector <vector <double> > > &xyz,
-	vector <vector <string> > &str,	vector <string> &resi,
+	vector <vector <string> > &str,	
+	vector <vector <string> > &remain,
+	vector <string> &resi,
 	vector <vector <int> > &binding_lig,
 	vector <vector <vector <int> > > &binding_rec)
 {
-	int zero=0;
 	for(int i=0;i<(int)xyz.size();i++)
 	{
 		//check binding
@@ -288,10 +303,10 @@ void Output_PointCloud_AtomLevel(FILE *fp,
 		//output to file
 		for(int j=0;j<len;j++)
 		{
-			fprintf(fp,"%5s %2s %8.3f %8.3f %8.3f %1d %3d\n",
+			fprintf(fp,"%5s %3s %8.3f %8.3f %8.3f %1d %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
-				atom_rec[j],zero);
+				atom_rec[j],remain[i][j].c_str());
 		}
 	}
 }
@@ -299,19 +314,20 @@ void Output_PointCloud_AtomLevel(FILE *fp,
 //--- resi_level ----//
 void Output_PointCloud_ResiLevel(FILE *fp, 	
 	vector <vector <vector <double> > > &xyz,
-	vector <vector <string> > &str,	vector <string> &resi,
+	vector <vector <string> > &str,	
+	vector <vector <string> > &remain,
+	vector <string> &resi,
 	vector <int> &binding_rec)
 {
-	int zero=0;
 	for(int i=0;i<(int)xyz.size();i++)
 	{
 		//output to file
 		for(int j=0;j<(int)xyz[i].size();j++)
 		{
-			fprintf(fp,"%5s %2s %8.3f %8.3f %8.3f %1d %3d\n",
+			fprintf(fp,"%5s %3s %8.3f %8.3f %8.3f %1d %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
-				binding_rec[i],zero);
+				binding_rec[i],remain[i][j].c_str());
 		}
 	}
 }
@@ -325,13 +341,15 @@ void XYZ_ContResi(string &protein_xyz, string &ligand_xyz, double thres,
 	//---- load protein -----//
 	vector <vector <vector <double> > > xyz1;
 	vector <vector <string> > str1;
+	vector <vector <string> > remain1;
 	vector <string> resi1;
-	Load_XYZ(protein_xyz,xyz1,str1,resi1);
+	Load_XYZ(protein_xyz,xyz1,str1,remain1,resi1);
 	//---- load ligand -----//
 	vector <vector <vector <double> > > xyz2;
 	vector <vector <string> > str2;
+	vector <vector <string> > remain2;
 	vector <string> resi2;
-	Load_XYZ(ligand_xyz,xyz2,str2,resi2);
+	Load_XYZ(ligand_xyz,xyz2,str2,remain2,resi2);
 	//---- calculate binding residues ----//
 	vector <pair<int,int> > binding_resi;
 	vector <int> binding_resi1;
@@ -348,11 +366,11 @@ void XYZ_ContResi(string &protein_xyz, string &ligand_xyz, double thres,
 	FILE *fp=fopen(protein_out.c_str(),"wb");
 	if(RESI_or_ATOM==0) //-> output at resi-level
 	{
-		Output_PointCloud_ResiLevel(fp,xyz1,str1,resi1,binding_resi1);
+		Output_PointCloud_ResiLevel(fp,xyz1,str1,remain1,resi1,binding_resi1);
 	}
 	else                //-> output at atom-level
 	{
-		Output_PointCloud_AtomLevel(fp,xyz1,str1,resi1,binding_lig1,binding_rec1);
+		Output_PointCloud_AtomLevel(fp,xyz1,str1,remain1,resi1,binding_lig1,binding_rec1);
 	}
 	//---- screenout binding residues -----//
 	for(int i=0;i<(int)binding_resi1.size();i++)
