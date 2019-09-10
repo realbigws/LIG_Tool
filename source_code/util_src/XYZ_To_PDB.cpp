@@ -554,9 +554,9 @@ void Usage()
 	fprintf(stderr,"-i xyz_input :         Input PDB file. \n\n");
 	fprintf(stderr,"-o pdb_output :        Output XYZ file. \n\n");
 	fprintf(stderr,"-s resi_start :        Default: set -1 to use original residue numbering, \n");
-	fprintf(stderr,"                        or, set the starting residue (1-base). \n\n");
+	fprintf(stderr,"                       or, set the starting residue (1-base). \n\n");
 	fprintf(stderr,"-S atom_start :        Default: use 1 for atom numbering, \n");
-	fprintf(stderr,"                        or, set the starting atom (1-base). \n\n");
+	fprintf(stderr,"                       or, set the starting atom (1-base). \n\n");
 	fprintf(stderr,"-b bfac_col :          Default: set -1 to CANCEL output bfactor columns, \n");
 	fprintf(stderr,"                       or, specify a column (1-base) to output bfactor (e.g., 7)\n\n");
 	fprintf(stderr,"-c chain :             Default: set ' ' for the chain identifier. \n");

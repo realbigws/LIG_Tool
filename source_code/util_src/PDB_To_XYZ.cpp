@@ -529,7 +529,7 @@ void Usage()
 	fprintf(stderr,"-i pdb_input :         Input PDB file. \n\n");
 	fprintf(stderr,"-o xyz_output :        Output XYZ file. \n\n");
 	fprintf(stderr,"-s resi_start :        Default: set -1 to use original residue numbering, \n");
-	fprintf(stderr,"                        or, set the starting residue (1-base). \n\n");
+	fprintf(stderr,"                       or, set the starting residue (1-base). \n\n");
 	fprintf(stderr,"-f resi_fix :          Default: set -1 to use original residue numbering, \n");
 	fprintf(stderr,"                       or, fix the residue number to the given value. \n\n");
 	fprintf(stderr,"-a addi_col :          Default: set -1 to CANCEL output additional columns, \n");
