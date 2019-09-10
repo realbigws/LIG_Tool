@@ -39,6 +39,13 @@ void getRootName(string &in,string &out,char slash)
 	else out=in.substr(0,i);
 }
 
+//----- check insert_code ------//
+int Check_Ins(string &in)
+{
+	int i=(int)in.length()-1;
+	if(in[i]>='0'&&in[i]<='9')return 0;
+	else return 1;
+}
 
 
 //========= XYZ format for point-cloud ==========//
@@ -85,6 +92,9 @@ void Load_XYZ(string &fn,vector <vector <vector <double> > > &xyz,
 		if(!getline(fin,buf,'\n'))break;
 		istringstream www(buf);
 		www>>temp;
+		//check ins_code
+		if(Check_Ins(temp)!=1)temp.push_back(' ');
+		//record first
 		if(first==1)
 		{
 			first=0;
@@ -107,10 +117,12 @@ void Load_XYZ(string &fn,vector <vector <vector <double> > > &xyz,
 		xyz_tmp.push_back(point);
 		//remain
 		string remain_rec="";
+		int count=0;
 		for(;;)
 		{
 			if(! (www>>temp) )break;
-			remain_rec=remain_rec+temp+" ";
+			if(count>0)remain_rec=remain_rec+temp+" ";
+			count++;
 		}
 		remain_tmp.push_back(remain_rec);
 	}
@@ -403,5 +415,6 @@ int main(int argc,char **argv)
 		exit(0);
 	}
 }
+
 
 

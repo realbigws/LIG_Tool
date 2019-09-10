@@ -116,8 +116,8 @@ Running example:
 ./LIG_Tool -i examples/1paz.pdb -l 1
 
 #-> label point-cloud at ligand-level
-util/PDB_To_XYZ_fix 1pazA.pdb 1pazA.xyz -1
-util/PDB_To_XYZ_fix 1paz_CU__0___.pdb 1paz_CU__0___.xyz 1
+util/PDB_To_XYZ -i 1pazA.pdb -o 1pazA.xyz
+util/PDB_To_XYZ -i 1paz_CU__0___.pdb -o 1paz_CU__0___.xyz -f 1
 util/XYZ_ContResi 1pazA.xyz 1paz_CU__0___.xyz 6.5 1pazA.pc_xyz 1
 
 or, use the util/multi_ligand_dump.sh script
@@ -134,7 +134,7 @@ Additionaly, we may also keep the additional info in the original point-cloud fi
 ./LIG_Tool -i examples/1paz.pdb -l 1 -O ./ -T 1
 
 #-> label point-cloud at ligand-level 
-util/PDB_To_XYZ_fix 1paz_CU__0___.pdb 1paz_CU__0___.xyz 1
+util/PDB_To_XYZ -i 1paz_CU__0___.pdb -o 1paz_CU__0___.xyz -f 1
 util/XYZ_ContResi 1pazA.pc_xyz 1paz_CU__0___.xyz 4.0 1pazA.pcl_xyz 1
 
 
@@ -143,7 +143,10 @@ util/XYZ_ContResi 1pazA.pc_xyz 1paz_CU__0___.xyz 4.0 1pazA.pcl_xyz 1
 7. conversion between PDB and XYZ
 
 ./LIG_Tool -i examples/1paz.pdb
-util/PDB_To_XYZ_fix 1pazA.pdb 1pazA.xyz -1
-util/XYZ_To_PDB_pc 1pazA.xyz 1pazA.pdb_pc A
+util/PDB_To_XYZ -i 1pazA.pdb -o 1pazA.xyz -a 1
+util/XYZ_To_PDB -i 1pazA.xyz -o 1pazA.pdb_pc -c A -b 7
+
+The two files '1pazA.pdb' and '1pazA.pdb_pc' shall be the same.
+
 
 

@@ -153,13 +153,13 @@ do
 	do
 		a=${k:0:4};
 		b=${k:5:9};
-		$home/PDB_To_XYZ_fix $lig/"$a$b".pdb $i.xyz_ $count;
+		$home/PDB_To_XYZ -i $lig/"$a$b".pdb -o $i.xyz_ -f $count;
 		((count++));
 		cat $i.xyz_ >> $i.xyz_lig;
 		echo $b >> $i.ligand;
 		rm -f $i.xyz_;
 	done;
-	$home/PDB_To_XYZ_fix $lig/$i.pdb $i.xyz_atom -1;
+	$home/PDB_To_XYZ -i $lig/$i.pdb -o $i.xyz_atom;
 	$home/XYZ_ContResi $i.xyz_atom $i.xyz_lig $distance_cut $out/${i}_atom.xyz 1 > $out/${i}_resi;
 	rm -f $i.xyz_lig;
 	rm -f $i.xyz_atom

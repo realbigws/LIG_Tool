@@ -641,7 +641,7 @@ int Compare_Ligand_and_Chain_Complex(vector <PDB_Residue> &protein, vector <XYZ>
 //-> record point-cloud
 void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, vector <Ligand_Struc> &ligands, 
 	double r_cut, vector <XYZ> &pc, vector <string> &atom, vector <int> &atom_lab,
-	vector <int> &posi, vector <char> &resi, vector <char> &label, vector <int> &pacc, vector <double> &bfac)
+	vector <string> &posi, vector <char> &resi, vector <char> &label, vector <int> &pacc, vector <double> &bfac)
 {
 	int i,j,k;
 	int number;
@@ -665,7 +665,7 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		string atom_name=atomname;
 		string pdbind_;
 		PDB.get_PDB_residue_number(pdbind_);
-		int posi_rel=atoi(pdbind_.substr(1,4).c_str());
+		string posi_rel=pdbind_.substr(1,5);
 		PDB.get_backbone_atom(k,xyz, numb, rfactor, temperature);
 		//record as point-cloud
 		pc.push_back(xyz);
@@ -706,7 +706,7 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		string atom_name=atomname;
 		string pdbind_;
 		PDB.get_PDB_residue_number(pdbind_);
-		int posi_rel=atoi(pdbind_.substr(1,4).c_str());
+		string posi_rel=pdbind_.substr(1,5);
 		PDB.get_sidechain_atom(k,xyz, numb, rfactor, temperature);
 		//record as point-cloud
 		pc.push_back(xyz);
@@ -740,7 +740,7 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 //-> extract ALL residues
 void Residue_Ligand_PC(vector <PDB_Residue> &chain, vector <int> &pacc_val, vector <Ligand_Struc> &ligands, 
 	double r_cut, vector <XYZ> &pc, vector <string> &atom, vector <int> &atom_lab,
-	vector <int> &posi, vector <char> &resi, vector <char> &label, vector <int> &pacc, vector <double> &bfac)
+	vector <string> &posi, vector <char> &resi, vector <char> &label, vector <int> &pacc, vector <double> &bfac)
 {
 	pc.clear();
 	atom.clear();
@@ -793,8 +793,8 @@ void Calculate_ACC(vector <PDB_Residue> &chain, vector <int> &pAcc)
 
 //-> filter point-cloud
 void Filter_PointCloud(int type,
-	vector <XYZ> &pc_in, vector <string> &atom_in, vector <int> &atomlab_in, vector <int> &posi_in, vector <char> &resi_in, vector <char> &label_in, vector <int> &pacc_in, vector <double> &bfac_in,
-	vector <XYZ> &pc_out, vector <string> &atom_out, vector <int> &atomlab_out, vector <int> &posi_out, vector <char> &resi_out, vector <char> &label_out, vector <int> &pacc_out, vector <double> &bfac_out)
+	vector <XYZ> &pc_in, vector <string> &atom_in, vector <int> &atomlab_in, vector <string> &posi_in, vector <char> &resi_in, vector <char> &label_in, vector <int> &pacc_in, vector <double> &bfac_in,
+	vector <XYZ> &pc_out, vector <string> &atom_out, vector <int> &atomlab_out, vector <string> &posi_out, vector <char> &resi_out, vector <char> &label_out, vector <int> &pacc_out, vector <double> &bfac_out)
 {
 	pc_out.clear();
 	atom_out.clear();
@@ -857,12 +857,12 @@ void Filter_PointCloud(int type,
 //-> output PC to file
 void Output_File_PC(FILE *fp,
 	vector <XYZ> &pc, vector <string> &atom, vector <int> &atom_lab,
-	vector <int> &posi, vector <char> &resi, vector <char> &label, vector <int> &pacc, vector <double> &bfac)
+	vector <string> &posi, vector <char> &resi, vector <char> &label, vector <int> &pacc, vector <double> &bfac)
 {
 	for(long i=0;i<(long)pc.size();i++)
 	{
-		fprintf(fp,"%5d %c%c%c %8.3f %8.3f %8.3f %c %3d %3d\n",
-			posi[i],resi[i],atom[i][0],atom_lab[i]+'a',pc[i].X,pc[i].Y,pc[i].Z,label[i],pacc[i],int(bfac[i]));
+		fprintf(fp,"%5s %c%c%c %8.3f %8.3f %8.3f %c %5.2f %3d\n",
+			posi[i].c_str(),resi[i],atom[i][0],atom_lab[i]+'a',pc[i].X,pc[i].Y,pc[i].Z,label[i],bfac[i],pacc[i]);
 	}
 }
 
@@ -1288,7 +1288,7 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			vector <XYZ> pc_in;
 			vector <string> atom_in;
 			vector <int> atomlab_in;
-			vector <int> posi_in;
+			vector <string> posi_in;
 			vector <char> resi_in;
 			vector <char> label_in;
 			vector <int> pacc_in;
@@ -1299,7 +1299,7 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			vector <XYZ> pc_out;
 			vector <string> atom_out;
 			vector <int> atomlab_out;
-			vector <int> posi_out;
+			vector <string> posi_out;
 			vector <char> resi_out;
 			vector <char> label_out;
 			vector <int> pacc_out;
@@ -1395,6 +1395,7 @@ int main(int argc, char** argv)
 		exit(0);
 	}
 }
+
 
 
 

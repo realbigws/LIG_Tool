@@ -20,10 +20,10 @@ LIG_Tool:
 util:
 	$(CXX) $(UTILS)Chemical_Component_Dictionary.cpp $(FLAG) -o Chemical_Component_Dictionary
 	$(CXX) $(UTILS)XYZ_ContResi.cpp $(FLAG) -o XYZ_ContResi
-	$(CXX) $(UTILS)PDB_To_XYZ_fix.cpp $(FLAG) -o PDB_To_XYZ_fix
-	$(CXX) $(UTILS)XYZ_To_PDB_pc.cpp $(FLAG) -o XYZ_To_PDB_pc
+	$(CXX) $(UTILS)PDB_To_XYZ.cpp $(FLAG) -o PDB_To_XYZ
+	$(CXX) $(UTILS)XYZ_To_PDB.cpp $(FLAG) -o XYZ_To_PDB
 	mkdir -p ../util
-	mv Chemical_Component_Dictionary XYZ_ContResi PDB_To_XYZ_fix XYZ_To_PDB_pc ../util/
+	mv Chemical_Component_Dictionary XYZ_ContResi PDB_To_XYZ XYZ_To_PDB ../util/
 
 # clean all the temp files
 clean:

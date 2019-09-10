@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <getopt.h>
 using namespace std;
 
 
@@ -39,6 +40,14 @@ void getRootName(string &in,string &out,char slash)
 	else out=in.substr(0,i);
 }
 
+//------- int to string --------//
+template <typename T>
+string NumberToString( T Number )
+{
+	ostringstream ss;
+	ss << Number;
+	return ss.str();
+}
 
 //--------- Parse_Str_Str --------//
 int Parse_Str_Str(string &in,vector <string> &out, char separator)
@@ -101,9 +110,9 @@ int Check_Ins(string &in)
 */
 
 //--------- load XYZ ----------//
-int Load_XYZ(string &fn,
+int Load_XYZ(string &fn, int bfac_col,
 	vector <vector <vector <double> > > &xyz,
-	vector <vector <string> > &str, vector <vector <int> > &lab, 
+	vector <vector <string> > &str, vector <vector <int> > &lab, vector <vector <double> > &bfac, 
 	vector <string> &resi)
 {
 	ifstream fin;
@@ -119,10 +128,12 @@ int Load_XYZ(string &fn,
 	xyz.clear();
 	str.clear();
 	lab.clear();
+	bfac.clear();
 	vector <double> point(3);
 	vector <vector <double> > xyz_tmp;
 	vector <string> str_tmp;
 	vector <int> lab_tmp;
+	vector <double> bfac_tmp;
 	string prev="";
 	string str_rec;
 	int first=1;
@@ -153,9 +164,11 @@ int Load_XYZ(string &fn,
 			xyz.push_back(xyz_tmp);
 			str.push_back(str_tmp);
 			lab.push_back(lab_tmp);
+			bfac.push_back(bfac_tmp);
 			xyz_tmp.clear();
 			str_tmp.clear();
 			lab_tmp.clear();
+			bfac_tmp.clear();
 			prev=temp;
 			count++;
 		}
@@ -169,6 +182,10 @@ int Load_XYZ(string &fn,
 		int label=0;
 		if(retv>5)label=atoi(tmp_rec[5].c_str());
 		lab_tmp.push_back(label);
+		//-> bfac
+		double bfactor=0;
+		if(bfac_col>0 && retv>=bfac_col)bfactor=atof(tmp_rec[bfac_col-1].c_str());
+		bfac_tmp.push_back(bfactor);
 	}
 	//termi
 	if(first==0)
@@ -177,6 +194,7 @@ int Load_XYZ(string &fn,
 		xyz.push_back(xyz_tmp);
 		str.push_back(str_tmp);
 		lab.push_back(lab_tmp);
+		bfac.push_back(bfac_tmp);
 		count++;
 	}
 	//return
@@ -481,60 +499,135 @@ ATOM    500  CB  MET A   1     -28.881  31.843  72.350  1.00 16.43      A    C
 ATOM    501  CG  MET A   1     -29.636  30.528  72.448  1.00 17.15      A    C
 ...
 */
-void XYZ_To_PDB_pointcloud(string &xyz_file, string &pdb_file, int chain)
+void XYZ_To_PDB(string &xyz_file, FILE *fp, 
+	int resi_start, int atom_start, char chain, int bfac_col)
 {
 	//--- load XYZ ---//
 	vector <vector <vector <double> > > xyz;
 	vector <vector <string> > str;
 	vector <vector <int> > lab;
+	vector <vector <double> > bfac;
 	vector <string> resi;
-	int moln=Load_XYZ(xyz_file,xyz,str,lab,resi);
+	int moln=Load_XYZ(xyz_file,bfac_col,xyz,str,lab,bfac,resi);
 	//--- output PDB ----//
 	double rfactor=1;
+	double bfactor=0;
 	int atom_num=1;
-	char rel_chain;
-	if(chain<=0)rel_chain=' ';
-	else rel_chain=chain;
-	FILE *fp=fopen(pdb_file.c_str(),"wb");
+	if(atom_start>=0)atom_num=atom_start;
+	char rel_chain=chain;
 	for(int i=0;i<moln;i++)
 	{
 		const char* resi_name;
 		const char* atom_name;
+		string resi_str;
 		for(int j=0;j<(int)xyz[i].size();j++)
 		{
 			resi_name=WWW_One2Three_III(str[i][j][0]);
 			int atom_lab=str[i][j][2]-'a';
 			if(atom_lab<4) atom_name=WWW_backbone_atom_name_decode(atom_lab);
 			else atom_name=WWW_sidechain_atom_name_decode(atom_lab-4, str[i][j][0]);
-			fprintf(fp,"ATOM  %5d %4s %3s %c%5s   %8.3f%8.3f%8.3f%6.2f%6.2f      %c    %c\n",
-				atom_num,atom_name,resi_name,rel_chain,resi[i].c_str(),
-				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],rfactor,
-				10.0*lab[i][j],rel_chain,str[i][j][1]);
+			if(bfac_col>=0)bfactor=bfac[i][j];
+			else bfactor=10.0*lab[i][j];
+			if(resi_start<0)resi_str=resi[i];
+			else
+			{
+				resi_str=NumberToString(resi_start+i);
+				resi_str.push_back(' ');
+			}
+			fprintf(fp,"ATOM  %5d %4s %3s %c%5s   %8.3f%8.3f%8.3f%6.2f%6.2f      %c    %c  \n",
+				atom_num,atom_name,resi_name,rel_chain,resi_str.c_str(),
+				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],rfactor,bfactor,
+				rel_chain,str[i][j][1]);
 			atom_num++;
 		}
 	}
-	fclose(fp);
+}
+
+
+//---------- usage ---------//
+void Usage()
+{
+	fprintf(stderr,"Version: 0.98 \n");
+	fprintf(stderr,"XYZ_To_PDB -i xyz_input -o pdb_output [-s resi_start] [-S atom_start] [-b bfac_col] \n");
+	fprintf(stderr,"                         [-c chain] \n\n");
+	fprintf(stderr,"Usage : \n\n");
+	fprintf(stderr,"-i xyz_input :         Input PDB file. \n\n");
+	fprintf(stderr,"-o pdb_output :        Output XYZ file. \n\n");
+	fprintf(stderr,"-s resi_start :        Default: set -1 to use original residue numbering, \n");
+	fprintf(stderr,"                        or, set the starting residue (1-base). \n\n");
+	fprintf(stderr,"-S atom_start :        Default: use 1 for atom numbering, \n");
+	fprintf(stderr,"                        or, set the starting atom (1-base). \n\n");
+	fprintf(stderr,"-b bfac_col :          Default: set -1 to CANCEL output bfactor columns, \n");
+	fprintf(stderr,"                       or, specify a column (1-base) to output bfactor (e.g., 7)\n\n");
+	fprintf(stderr,"-c chain :             Default: set ' ' for the chain identifier. \n");
+	fprintf(stderr,"                       or, specify a given chain identifier. \n\n");
 }
 
 
 //---------- main ----------//
 int main(int argc,char **argv)
 {
-	//---- XYZ_To_PDB_pc ----//
+	//---- XYZ_To_PDB ----//
 	{
-		if(argc<4)
+		if(argc<3)
 		{
-			fprintf(stderr,"XYZ_To_PDB_pc <xyz_file> <pdb_file> <chain> \n");
-			fprintf(stderr,"[note]: set chain -1 to use 'blank' chain identifier \n");
+			Usage();
 			exit(-1);
 		}
-		string xyz_file=argv[1];
-		string pdb_file=argv[2];
-		int chain=argv[3][0];
+		string xyz_input="";
+		string pdb_output="";
+		int resi_start=-1;
+		int atom_start=-1;
+		int bfac_col=-1;
+		char chain=' ';
+		//command-line arguments process
+		extern char* optarg;
+		char c = 0;
+		while ((c = getopt(argc, argv, "i:o:s:S:b:c:")) != EOF) 
+		{
+			switch (c) 
+			{
+				case 'i':
+					xyz_input = optarg;
+					break;
+				case 'o':
+					pdb_output = optarg;
+					break;
+				case 's':
+					resi_start = atoi(optarg);
+					break;
+				case 'S':
+					atom_start = atoi(optarg);
+					break;
+				case 'b':
+					bfac_col = atoi(optarg);
+					break;
+				case 'c':
+					chain = optarg[0];
+					break;
+				default:
+					Usage();
+					exit(-1);
+			}
+		}
+		//check arguments
+		if(xyz_input=="")
+		{
+			fprintf(stderr,"xyz_input should be specified \n");
+			exit(-1);
+		}
+		if(pdb_output=="")
+		{
+			fprintf(stderr,"pdb_output should be specified \n");
+			exit(-1);
+		}
 		//proc
-		XYZ_To_PDB_pointcloud(xyz_file,pdb_file,chain);
+		FILE *fp=fopen(pdb_output.c_str(),"wb");
+		XYZ_To_PDB(xyz_input,fp,resi_start,atom_start,chain,bfac_col);
+		fclose(fp);
 		//exit
 		exit(0);
 	}
 }
+
 

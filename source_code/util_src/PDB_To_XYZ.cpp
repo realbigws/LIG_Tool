@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <getopt.h>
 using namespace std;
 
 
@@ -401,7 +402,7 @@ char WWW_Three2One_III(const char *input)
 ...
 */
 
-//--------- PDB_To_XYZ_fix ----------//
+//--------- PDB_To_XYZ ----------//
 //-> PDB format:
 /*
 ATOM    496  N   MET A   1     -30.766  33.288  73.186  1.00 19.31      A    N
@@ -412,7 +413,8 @@ ATOM    500  CB  MET A   1     -28.881  31.843  72.350  1.00 16.43      A    C
 ATOM    501  CG  MET A   1     -29.636  30.528  72.448  1.00 17.15      A    C
 ...
 */
-void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
+void PDB_To_XYZ(string &pdb,FILE *fp,
+	int resi_start,int resi_fix,int addi_columns)
 {
 	ifstream fin;
 	string buf,temp,name;
@@ -426,6 +428,9 @@ void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 	int len;
 	int resi;
 	string type;
+	string prev="";
+	int first=1;
+	int resi_num=0;
 	for(;;)
 	{
 		if(!getline(fin,buf,'\n'))break;
@@ -444,14 +449,32 @@ void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 		char c=WWW_Three2One_III(temp.c_str());
 		char h=buf[77];
 		//resi
-		string resi_str;
-		if(resi_type<0)
+		string curr=buf.substr(22,5);
+		if(first==1)
 		{
-			resi_str=buf.substr(22,5);
+			first=0;
+			prev=curr;
+		}
+		if(curr!=prev)
+		{
+			resi_num++;
+			prev=curr;
+		}
+		string resi_str;
+		if(resi_start<0 && resi_fix<0)
+		{
+			resi_str=curr;
 		}
 		else
 		{
-			resi_str=NumberToString(resi_type);
+			if(resi_fix>=0)  //-> fix residue (has priority over resi_start)
+			{
+				resi_str=NumberToString(resi_fix);
+			}
+			else             //-> use resi_start
+			{
+				resi_str=NumberToString(resi_start+resi_num);
+			}
 		}
 		//atom
 		char atom_char='!';
@@ -479,33 +502,102 @@ void PDB_To_XYZ_fix(string &pdb,FILE *fp,int resi_type)
 		double y=atof(temp.c_str());
 		temp=buf.substr(46,8);
 		double z=atof(temp.c_str());
+		//bfactor
+		temp=buf.substr(60,6);
+		double bfactor=atof(temp.c_str());
 		//output
-		fprintf(fp,"%5s %c%c%c %8.3f %8.3f %8.3f \n",
-			resi_str.c_str(),c,h,atom_char,x,y,z);
+		if(addi_columns<0)
+		{
+			fprintf(fp,"%5s %c%c%c %8.3f %8.3f %8.3f \n",
+				resi_str.c_str(),c,h,atom_char,x,y,z);
+		}
+		else
+		{
+			fprintf(fp,"%5s %c%c%c %8.3f %8.3f %8.3f 0 %5.2f \n",
+				resi_str.c_str(),c,h,atom_char,x,y,z,bfactor);
+		}
 	}
 }
+
+
+//---------- usage ---------//
+void Usage()
+{
+	fprintf(stderr,"Version: 0.98 \n");
+	fprintf(stderr,"PDB_To_XYZ -i pdb_input -o xyz_output [-s resi_start] [-f resi_fix] [-a addi_col] \n\n");
+	fprintf(stderr,"Usage : \n\n");
+	fprintf(stderr,"-i pdb_input :         Input PDB file. \n\n");
+	fprintf(stderr,"-o xyz_output :        Output XYZ file. \n\n");
+	fprintf(stderr,"-s resi_start :        Default: set -1 to use original residue numbering, \n");
+	fprintf(stderr,"                        or, set the starting residue (1-base). \n\n");
+	fprintf(stderr,"-f resi_fix :          Default: set -1 to use original residue numbering, \n");
+	fprintf(stderr,"                       or, fix the residue number to the given value. \n\n");
+	fprintf(stderr,"-a addi_col :          Default: set -1 to CANCEL output additional columns, \n");
+	fprintf(stderr,"                       or, specify 1 to output '0 bfactor ' columns. \n\n");
+}
+
 
 //-------- main ---------//
 int main(int argc,char **argv)
 {
-	//------ PDB_To_XYZ_fix -------//
+	//------ PDB_To_XYZ -------//
 	{
-		if(argc<4)
+		if(argc<3)
 		{
-			fprintf(stderr,"PDB_To_XYZ_fix <pdb_file> <xyz_file> <fix_resi> \n");
-			fprintf(stderr,"[note]: set fix_resi -1 to use original residue numbering \n");
+			Usage();
 			exit(-1);
 		}
-		string pdb_file=argv[1];
-		string xyz_file=argv[2];
-		int fix_resi=atoi(argv[3]);
+		string pdb_input="";
+		string xyz_output="";
+		int resi_start=-1;
+		int resi_fix=-1;
+		int addi_col=-1;
+		//command-line arguments process
+		extern char* optarg;
+		char c = 0;
+		while ((c = getopt(argc, argv, "i:o:s:f:a:")) != EOF) 
+		{
+			switch (c) 
+			{
+				case 'i':
+					pdb_input = optarg;
+					break;
+				case 'o':
+					xyz_output = optarg;
+					break;
+				case 's':
+					resi_start = atoi(optarg);
+					break;
+				case 'f':
+					resi_fix = atoi(optarg);
+					break;
+				case 'a':
+					addi_col = atoi(optarg);
+					break;
+				default:
+					Usage();
+					exit(-1);
+			}
+		}
+		//check arguments
+		if(pdb_input=="")
+		{
+			fprintf(stderr,"pdb_input should be specified \n");
+			exit(-1);
+		}
+		if(xyz_output=="")
+		{
+			fprintf(stderr,"xyz_output should be specified \n");
+			exit(-1);
+		}
 		//proc
-		FILE *fp=fopen(xyz_file.c_str(),"wb");
-		PDB_To_XYZ_fix(pdb_file,fp,fix_resi);
+		FILE *fp=fopen(xyz_output.c_str(),"wb");
+		PDB_To_XYZ(pdb_input,fp,resi_start,resi_fix,addi_col);
 		fclose(fp);
 		//exit
 		exit(0);
 	}
 }
+
 
 
