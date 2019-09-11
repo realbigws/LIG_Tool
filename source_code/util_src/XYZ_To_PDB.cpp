@@ -40,15 +40,6 @@ void getRootName(string &in,string &out,char slash)
 	else out=in.substr(0,i);
 }
 
-//------- int to string --------//
-template <typename T>
-string NumberToString( T Number )
-{
-	ostringstream ss;
-	ss << Number;
-	return ss.str();
-}
-
 //--------- Parse_Str_Str --------//
 int Parse_Str_Str(string &in,vector <string> &out, char separator)
 {
@@ -80,13 +71,15 @@ int Parse_Str_Str(string &in,vector <string> &out)
 	return count;
 }
 
-//----- check insert_code ------//
-int Check_Ins(string &in)
+//------- int to string --------//
+template <typename T>
+string NumberToString( T Number )
 {
-	int i=(int)in.length()-1;
-	if(in[i]>='0'&&in[i]<='9')return 0;
-	else return 1;
+	ostringstream ss;
+	ss << Number;
+	return ss.str();
 }
+
 
 
 //========= XYZ format for point-cloud ==========//
@@ -108,9 +101,15 @@ int Check_Ins(string &in)
     8 QOd  -16.145   27.388   61.063 0  24
 ...
 */
-
-//--------- load XYZ ----------//
-int Load_XYZ(string &fn, int bfac_col,
+//----- check insert_code ------//
+int Check_Ins(string &in)
+{
+	int i=(int)in.length()-1;
+	if(in[i]>='0'&&in[i]<='9')return 0;
+	else return 1;
+}
+//--------- load XYZ with Bfactor ----------//
+int Load_XYZ_Bfactor(string &fn, int bfac_col,
 	vector <vector <vector <double> > > &xyz,
 	vector <vector <string> > &str, vector <vector <int> > &lab, vector <vector <double> > &bfac, 
 	vector <string> &resi)
@@ -508,7 +507,7 @@ void XYZ_To_PDB(string &xyz_file, FILE *fp,
 	vector <vector <int> > lab;
 	vector <vector <double> > bfac;
 	vector <string> resi;
-	int moln=Load_XYZ(xyz_file,bfac_col,xyz,str,lab,bfac,resi);
+	int moln=Load_XYZ_Bfactor(xyz_file,bfac_col,xyz,str,lab,bfac,resi);
 	//--- output PDB ----//
 	double rfactor=1;
 	double bfactor=0;

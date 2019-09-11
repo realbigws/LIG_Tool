@@ -553,11 +553,9 @@ int Check_Ins(string &in)
 	else return 1;
 }
 //--------- load XYZ ----------//
-
-int Load_XYZ(string &fn, int bfac_col,
-	vector <vector <vector <double> > > &xyz,
-	vector <vector <string> > &str, vector <vector <int> > &lab, vector <vector <double> > &bfac, 
-	vector <string> &resi)
+void Load_XYZ_Label(string &fn,vector <vector <vector <double> > > &xyz,
+	vector <vector <string> > &str, vector <vector <int> > &lab,
+	vector <vector <string> > &remain, vector <string> &resi)
 {
 	ifstream fin;
 	string buf,temp;
@@ -568,32 +566,24 @@ int Load_XYZ(string &fn, int bfac_col,
 		fprintf(stderr,"list %s not found!!\n",fn.c_str());
 		exit(-1);
 	}
-	resi.clear();
 	xyz.clear();
 	str.clear();
 	lab.clear();
-	bfac.clear();
+	remain.clear();
+	resi.clear();
 	vector <double> point(3);
 	vector <vector <double> > xyz_tmp;
 	vector <string> str_tmp;
 	vector <int> lab_tmp;
-	vector <double> bfac_tmp;
+	vector <string> remain_tmp;
 	string prev="";
 	string str_rec;
 	int first=1;
-	int count=0;
 	for(;;)
 	{
 		if(!getline(fin,buf,'\n'))break;
-		//-> get input
-		vector <string> tmp_rec;
-		int retv=Parse_Str_Str(buf,tmp_rec);
-		if(retv<5)
-		{
-			fprintf(stderr,"xyz %s format bad!!\n",fn.c_str());
-			exit(-1);
-		}
-		temp=tmp_rec[0];
+		istringstream www(buf);
+		www>>temp;
 		//check ins_code
 		if(Check_Ins(temp)!=1)temp.push_back(' ');
 		//record first
@@ -604,60 +594,59 @@ int Load_XYZ(string &fn, int bfac_col,
 		}
 		if(temp!=prev)
 		{
-			resi.push_back(prev);
 			xyz.push_back(xyz_tmp);
 			str.push_back(str_tmp);
 			lab.push_back(lab_tmp);
-			bfac.push_back(bfac_tmp);
+			remain.push_back(remain_tmp);
+			resi.push_back(prev);
 			xyz_tmp.clear();
 			str_tmp.clear();
 			lab_tmp.clear();
-			bfac_tmp.clear();
+			remain_tmp.clear();
 			prev=temp;
+		}
+		www>>temp;
+		str_tmp.push_back(temp);
+		www>>point[0]>>point[1]>>point[2];
+		xyz_tmp.push_back(point);
+		//remain
+		string remain_rec="";
+		int count=0;
+		int lab_value=0;
+		for(;;)
+		{
+			if(! (www>>temp) )break;
+			if(count>0)remain_rec=remain_rec+temp+" ";
+			else lab_value=atoi(temp.c_str());
 			count++;
 		}
-		temp=tmp_rec[1];
-		str_tmp.push_back(temp);
-		point[0]=atof(tmp_rec[2].c_str());
-		point[1]=atof(tmp_rec[3].c_str());
-		point[2]=atof(tmp_rec[4].c_str());
-		xyz_tmp.push_back(point);
-		//-> addi
-		int label=0;
-		if(retv>5)label=atoi(tmp_rec[5].c_str());
-		lab_tmp.push_back(label);
-		//-> bfac
-		double bfactor=0;
-		if(bfac_col>0 && retv>=bfac_col)bfactor=atof(tmp_rec[bfac_col-1].c_str());
-		bfac_tmp.push_back(bfactor);
+		lab_tmp.push_back(lab_value);
+		remain_tmp.push_back(remain_rec);
 	}
 	//termi
 	if(first==0)
 	{
-		resi.push_back(prev);
 		xyz.push_back(xyz_tmp);
 		str.push_back(str_tmp);
 		lab.push_back(lab_tmp);
-		bfac.push_back(bfac_tmp);
-		count++;
+		remain.push_back(remain_tmp);
+		resi.push_back(prev);
 	}
-	//return
-	return count;
 }
 
 
 
 //==================== XYZ Generate Features ======================//
 void XYZ_Gen_Feature(string &in, string &out,
-	int bfac_col,double radius,double grid_interval)
+	double radius,double grid_interval)
 {
 	//----- load XYZ -----//
 	vector <vector <vector <double> > > xyz;
 	vector <vector <string> > str;
 	vector <vector <int> > lab;
-	vector <vector <double> > bfac;
+	vector <vector <string> > remain;
 	vector <string> resi;
-	Load_XYZ(in,bfac_col,xyz,str,lab,bfac,resi);
+	Load_XYZ_Label(in,xyz,str,lab,remain,resi);
 	//----- generate resi/atom features ----//
 	vector <vector <vector <double> > > resiatom_feature;
 	Calculate_ResiAtom_Features(str,resiatom_feature);
@@ -680,10 +669,11 @@ void XYZ_Gen_Feature(string &in, string &out,
 			}
 			string wsbuf=oss.str();
 			//output to file
-			fprintf(fp,"%5s %3s %8.3f %8.3f %8.3f %1d %5.2f %5.2f %s\n",
+			fprintf(fp,"%5s %3s %8.3f %8.3f %8.3f %1d %s %5.2f %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
-				lab[i][j],bfac[i][j],protrusion_score[i][j],wsbuf.c_str());
+				lab[i][j],remain[i][j].c_str(),
+				protrusion_score[i][j],wsbuf.c_str());
 		}
 	}
 	fclose(fp);
@@ -695,21 +685,22 @@ int main(int argc,char **argv)
 {
 	//------ XYZ_Gen_Feature -------//
 	{
-		if(argc<6)
+		if(argc<5)
 		{
-			fprintf(stderr,"XYZ_Gen_Feature <xyz_in> <xyz_out> <bfac_col> <radius> <grid_interval> \n");
-			fprintf(stderr,"[note]: set bfac_col to 7; radius to 10; grid_interval to 2;\n");
+			fprintf(stderr,"XYZ_Gen_Feature <xyz_in> <xyz_out> <radius> <grid_interval> \n");
+			fprintf(stderr,"[note]: set radius to 10; set grid_interval to 1 or 2;\n");
 			exit(-1);
 		}
 		string xyz_in=argv[1];
 		string xyz_out=argv[2];
-		int bfac_col=atoi(argv[3]);
-		double radius=atof(argv[4]);
-		double grid_interval=atof(argv[5]);
+		double radius=atof(argv[3]);
+		double grid_interval=atof(argv[4]);
 		//proc
-		XYZ_Gen_Feature(xyz_in,xyz_out,bfac_col,radius,grid_interval);
+		XYZ_Gen_Feature(xyz_in,xyz_out,radius,grid_interval);
 		//exit
 		exit(0);
 	}
 }
+
+
 

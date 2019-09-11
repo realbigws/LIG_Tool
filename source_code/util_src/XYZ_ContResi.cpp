@@ -39,6 +39,25 @@ void getRootName(string &in,string &out,char slash)
 	else out=in.substr(0,i);
 }
 
+
+//========= XYZ format for point-cloud ==========//
+/*
+    6 DOg  -22.389   29.406   56.176 0  58
+    6 DOh  -23.720   31.160   56.319 0  58
+    7 KNa  -22.679   27.076   60.272 0  55
+    7 KCb  -21.836   26.578   61.340 0  55
+    7 KCc  -20.356   26.635   60.950 0  55
+    7 KOd  -19.746   25.631   60.582 0  55
+    7 KCe  -22.307   25.189   61.783 0  55
+    7 KCf  -23.751   25.237   62.298 0  55
+    7 KCg  -24.043   24.207   63.371 0  55
+    7 KCh  -25.357   24.538   64.095 0  55
+    7 KNi  -25.610   23.600   65.237 0  55
+    8 QNa  -19.785   27.829   61.073 0  24
+    8 QCb  -18.384   28.110   60.732 0  24
+    8 QCc  -17.293   27.383   61.502 0  24
+    8 QOd  -16.145   27.388   61.063 0  24
+*/
 //----- check insert_code ------//
 int Check_Ins(string &in)
 {
@@ -46,21 +65,6 @@ int Check_Ins(string &in)
 	if(in[i]>='0'&&in[i]<='9')return 0;
 	else return 1;
 }
-
-
-//========= XYZ format for point-cloud ==========//
-/*
-    1 MH  -30.302   30.594   73.150
-    1 MH  -30.113   30.371   71.618
-    1 MH  -27.405   27.894   71.199
-    1 MH  -28.776   28.421   70.605
-    1 MH  -27.541   29.403   70.738
-    2 IN  -29.448   33.231   69.748
-    2 IC  -29.800   33.305   68.344
-    2 IC  -29.435   31.994   67.649
-    2 IO  -28.554   31.259   68.126
-    2 IC  -29.064   34.526   67.741
-*/
 
 //--------- load XYZ ----------//
 void Load_XYZ(string &fn,vector <vector <vector <double> > > &xyz,
@@ -78,8 +82,8 @@ void Load_XYZ(string &fn,vector <vector <vector <double> > > &xyz,
 	}
 	xyz.clear();
 	str.clear();
-	resi.clear();
 	remain.clear();
+	resi.clear();
 	vector <double> point(3);
 	vector <vector <double> > xyz_tmp;
 	vector <string> str_tmp;
