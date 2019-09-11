@@ -111,7 +111,7 @@ int Check_Ins(string &in)
 //--------- load XYZ with Bfactor ----------//
 int Load_XYZ_Bfactor(string &fn, int bfac_col,
 	vector <vector <vector <double> > > &xyz,
-	vector <vector <string> > &str, vector <vector <int> > &lab, vector <vector <double> > &bfac, 
+	vector <vector <string> > &str, vector <vector <string> > &lab, vector <vector <double> > &bfac, 
 	vector <string> &resi)
 {
 	ifstream fin;
@@ -131,7 +131,7 @@ int Load_XYZ_Bfactor(string &fn, int bfac_col,
 	vector <double> point(3);
 	vector <vector <double> > xyz_tmp;
 	vector <string> str_tmp;
-	vector <int> lab_tmp;
+	vector <string> lab_tmp;
 	vector <double> bfac_tmp;
 	string prev="";
 	string str_rec;
@@ -178,8 +178,8 @@ int Load_XYZ_Bfactor(string &fn, int bfac_col,
 		point[2]=atof(tmp_rec[4].c_str());
 		xyz_tmp.push_back(point);
 		//-> addi
-		int label=0;
-		if(retv>5)label=atoi(tmp_rec[5].c_str());
+		string label="0";
+		if(retv>5)label=tmp_rec[5];
 		lab_tmp.push_back(label);
 		//-> bfac
 		double bfactor=0;
@@ -504,7 +504,7 @@ void XYZ_To_PDB(string &xyz_file, FILE *fp,
 	//--- load XYZ ---//
 	vector <vector <vector <double> > > xyz;
 	vector <vector <string> > str;
-	vector <vector <int> > lab;
+	vector <vector <string> > lab;
 	vector <vector <double> > bfac;
 	vector <string> resi;
 	int moln=Load_XYZ_Bfactor(xyz_file,bfac_col,xyz,str,lab,bfac,resi);
@@ -525,8 +525,7 @@ void XYZ_To_PDB(string &xyz_file, FILE *fp,
 			int atom_lab=str[i][j][2]-'a';
 			if(atom_lab<4) atom_name=WWW_backbone_atom_name_decode(atom_lab);
 			else atom_name=WWW_sidechain_atom_name_decode(atom_lab-4, str[i][j][0]);
-			if(bfac_col>=0)bfactor=bfac[i][j];
-			else bfactor=10.0*lab[i][j];
+			bfactor=bfac[i][j];
 			if(resi_start<0)resi_str=resi[i];
 			else
 			{

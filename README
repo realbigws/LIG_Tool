@@ -155,7 +155,7 @@ The two files '1pazA.pdb' and '1pazA.pdb_pc' shall be the same.
 (according to P2Rank)
 
 ./LIG_Tool -i examples/1paz.pdb -l 1 -O ./ -T 1
-util/XYZ_Gen_Feature 1pazA.pc_xyz 1pazA.pc_xyz_feat 7 10 1
+util/XYZ_Gen_Feature 1pazA.pc_xyz 1pazA.pc_xyz_feat 10 1
 
 
 

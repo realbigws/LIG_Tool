@@ -554,7 +554,7 @@ int Check_Ins(string &in)
 }
 //--------- load XYZ ----------//
 void Load_XYZ_Label(string &fn,vector <vector <vector <double> > > &xyz,
-	vector <vector <string> > &str, vector <vector <int> > &lab,
+	vector <vector <string> > &str, vector <vector <string> > &lab,
 	vector <vector <string> > &remain, vector <string> &resi)
 {
 	ifstream fin;
@@ -574,7 +574,7 @@ void Load_XYZ_Label(string &fn,vector <vector <vector <double> > > &xyz,
 	vector <double> point(3);
 	vector <vector <double> > xyz_tmp;
 	vector <string> str_tmp;
-	vector <int> lab_tmp;
+	vector <string> lab_tmp;
 	vector <string> remain_tmp;
 	string prev="";
 	string str_rec;
@@ -612,12 +612,12 @@ void Load_XYZ_Label(string &fn,vector <vector <vector <double> > > &xyz,
 		//remain
 		string remain_rec="";
 		int count=0;
-		int lab_value=0;
+		string lab_value="0";
 		for(;;)
 		{
 			if(! (www>>temp) )break;
 			if(count>0)remain_rec=remain_rec+temp+" ";
-			else lab_value=atoi(temp.c_str());
+			else lab_value=temp;
 			count++;
 		}
 		lab_tmp.push_back(lab_value);
@@ -643,7 +643,7 @@ void XYZ_Gen_Feature(string &in, string &out,
 	//----- load XYZ -----//
 	vector <vector <vector <double> > > xyz;
 	vector <vector <string> > str;
-	vector <vector <int> > lab;
+	vector <vector <string> > lab;
 	vector <vector <string> > remain;
 	vector <string> resi;
 	Load_XYZ_Label(in,xyz,str,lab,remain,resi);
@@ -669,10 +669,10 @@ void XYZ_Gen_Feature(string &in, string &out,
 			}
 			string wsbuf=oss.str();
 			//output to file
-			fprintf(fp,"%5s %3s %8.3f %8.3f %8.3f %1d %s %5.2f %s\n",
+			fprintf(fp,"%5s %3s %8.3f %8.3f %8.3f %s %s %5.2f %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
-				lab[i][j],remain[i][j].c_str(),
+				lab[i][j].c_str(),remain[i][j].c_str(),
 				protrusion_score[i][j],wsbuf.c_str());
 		}
 	}
