@@ -159,7 +159,7 @@ do
 		echo $b >> $i.ligand;
 		rm -f $i.xyz_;
 	done;
-	$home/PDB_To_XYZ -i $lig/$i.pdb -o $i.xyz_atom;
+	$home/PDB_To_XYZ -i $lig/$i.pdb -o $i.xyz_atom -a 1;
 	$home/XYZ_ContResi $i.xyz_atom $i.xyz_lig $distance_cut $out/${i}_atom.xyz 1 > $out/${i}_resi;
 	rm -f $i.xyz_lig;
 	rm -f $i.xyz_atom
