@@ -669,7 +669,7 @@ void XYZ_Gen_Feature(string &in, string &out,
 			}
 			string wsbuf=oss.str();
 			//output to file
-			fprintf(fp,"%5s %3s %8.3f %8.3f %8.3f %s %s %5.2f %s\n",
+			fprintf(fp,"%6s %3s %8.3f %8.3f %8.3f %s %s %5.2f %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
 				lab[i][j].c_str(),remain[i][j].c_str(),
