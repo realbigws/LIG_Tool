@@ -49,7 +49,23 @@ string NumberToString( T Number )
 	return ss.str();
 }
 
-
+//------- remove space in a string -----//
+void Kill_Space(string &in,string &out)
+{
+	int i;
+	out="";
+	for(i=0;i<(int)in.length();i++)
+	{
+		if(in[i]!=' ')out+=in[i];
+	}
+}
+//----- check insertion code ------//
+int Check_Ins(string &in)
+{
+	int i=(int)in.length()-1;
+	if(in[i]>='0'&&in[i]<='9')return 0;
+	else return 1;
+}
 
 //----------- SideChain_Related ------------//
 //function (input three-digit atom)
@@ -448,6 +464,8 @@ void PDB_To_XYZ(string &pdb,FILE *fp,
 		temp=buf.substr(17,3);
 		char c=WWW_Three2One_III(temp.c_str());
 		char h=buf[77];
+		//chain
+		char chain=buf[21];
 		//resi
 		string curr=buf.substr(22,5);
 		if(first==1)
@@ -476,6 +494,9 @@ void PDB_To_XYZ(string &pdb,FILE *fp,
 				resi_str=NumberToString(resi_start+resi_num);
 			}
 		}
+		string resi_str_=chain+resi_str;
+		Kill_Space(resi_str_,resi_str);
+		if(Check_Ins(resi_str)!=1)resi_str.push_back(' ');
 		//atom
 		char atom_char='!';
 		if(type=="ATOM"&&c!='X')
@@ -508,12 +529,12 @@ void PDB_To_XYZ(string &pdb,FILE *fp,
 		//output
 		if(addi_columns<0)
 		{
-			fprintf(fp,"%5s %c%c%c %8.3f %8.3f %8.3f \n",
+			fprintf(fp,"%6s %c%c%c %8.3f %8.3f %8.3f \n",
 				resi_str.c_str(),c,h,atom_char,x,y,z);
 		}
 		else
 		{
-			fprintf(fp,"%5s %c%c%c %8.3f %8.3f %8.3f 0 %5.2f \n",
+			fprintf(fp,"%6s %c%c%c %8.3f %8.3f %8.3f 0 %5.2f \n",
 				resi_str.c_str(),c,h,atom_char,x,y,z,bfactor);
 		}
 	}

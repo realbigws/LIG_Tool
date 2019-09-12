@@ -17,13 +17,13 @@ using namespace std;
 void print_help_msg(void) 
 {
 	cout << "========================================================|" << endl;
-	cout << "LIG_Tool  (version 1.04) [2019.09.03]                   |" << endl;
+	cout << "LIG_Tool  (version 1.05) [2019.09.12]                   |" << endl;
 	cout << "    Extract ligands and chains from official PDB file   |" << endl;
 	cout << "Usage:   ./LIG_Tool <-i input_pdb> [-o out_name]        |" << endl;
 	cout << "         [-p chain_out_root] [-q ligand_out_root]       |" << endl;
 	cout << "         [-n length_cut] [-d distance_cut] [-l log]     |" << endl;
 	cout << "         [-O PC_out] [-T PC_type] [-t LG_type]          |" << endl;
-	cout << "         [-f filter] [-m mincut]                        |" << endl;
+	cout << "         [-f filter] [-m mincut] [-M atomcut]           |" << endl;
 	cout << "--------------------------------------------------------|" << endl;
 	cout << "-i input_pdb : input original PDB file, e.g., 1col.pdb  |" << endl;
 	cout << "-o out_name  : output file name. [default: input_name]  |" << endl;
@@ -37,6 +37,7 @@ void print_help_msg(void)
 	cout << "-t LG_type : select ligand type. [ default: 'IOPNX']    |" << endl;
 	cout << "-f filter  : list for filtered ligands. [default:null]  |" << endl;
 	cout << "-m mincut  : min_num of binding residues. [default:1]   |" << endl;
+	cout << "-M atomcut : min_num of binding atoms. [default:1]      |" << endl;
 	cout << "========================================================|" << endl;
 	exit(-1);
 }
@@ -53,6 +54,7 @@ int PC_TYPE=0;              //default: backbone+CB
 string LG_TYPE="IOPNX";     //default: ALL possible ligand type
 string LG_FILTER="";        //filtered ligands (default: null)
 int LG_MINCUT=1;            //minimal number of ligand binding residues (default:1)
+int LG_ATOMCUT=1;           //minimal number of ligand binding atoms (default:1)
 
 //-----------------------------------------------------------------------------------------------------------//
 //---- parameter editor ----//
@@ -70,6 +72,7 @@ static option long_options[] =
 	{"LGtype",  no_argument,       NULL, 't'},
 	{"LGfilt",  no_argument,       NULL, 'f'},
 	{"LGmin",   no_argument,       NULL, 'm'},
+	{"ATmin",   no_argument,       NULL, 'M'},
 	{0, 0, 0, 0}
 };
 //-----------------------------------------------------------------------------------------------------------//
@@ -82,7 +85,7 @@ void process_args(int argc,char** argv)
 	while(true) 
 	{
 		int option_index=0;
-		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:f:m:",
+		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:f:m:M:",
 			   long_options,&option_index);
 		if (opt==-1)break;	
 		switch(opt) 
@@ -122,6 +125,9 @@ void process_args(int argc,char** argv)
 				break;
 			case 'm':
 				LG_MINCUT=atoi(optarg);
+				break;
+			case 'M':
+				LG_ATOMCUT=atoi(optarg);
 				break;
 			default:
 				exit(-1);
@@ -552,7 +558,7 @@ int Compare_Ligand_and_Chain(vector <XYZ> &protein, vector <XYZ> &ligand,double 
 
 
 //-> Compare ligand and chain complex
-double Residue_Ligand_Distance(PDB_Residue & PDB, vector <XYZ> &ligand)
+double Residue_Ligand_Distance(PDB_Residue & PDB, vector <XYZ> &ligand, double thres,int &atom_num)
 {
 	int i,k;
 	int number;
@@ -561,6 +567,8 @@ double Residue_Ligand_Distance(PDB_Residue & PDB, vector <XYZ> &ligand)
 	double dist2;
 	double minval=99999;
 	totnum=(int)ligand.size();
+	atom_num=0;
+	double thres2=thres*thres;
 	//backbone
 	number=PDB.get_backbone_totnum();
 	for(k=0;k<number;k++)
@@ -573,6 +581,7 @@ double Residue_Ligand_Distance(PDB_Residue & PDB, vector <XYZ> &ligand)
 		{
 			dist2=ligand[i].distance_square(xyz);
 			if(dist2<minval)minval=dist2;
+			if(dist2<thres2)atom_num++;
 		}
 	}
 	//sidechain
@@ -587,6 +596,7 @@ double Residue_Ligand_Distance(PDB_Residue & PDB, vector <XYZ> &ligand)
 		{
 			dist2=ligand[i].distance_square(xyz);
 			if(dist2<minval)minval=dist2;
+			if(dist2<thres2)atom_num++;
 		}
 	}
 	//return
@@ -601,8 +611,14 @@ void Kill_Space(string &in,string &out)
 		if(in[i]!=' ')out+=in[i];
 	}
 }
+int Check_Ins(string &in)
+{
+	int i=(int)in.length()-1;
+	if(in[i]>='0'&&in[i]<='9')return 0;
+	else return 1;
+}
 int Compare_Ligand_and_Chain_Complex(vector <PDB_Residue> &protein, vector <XYZ> &ligand,double r_cut, 
-	vector <int> &pos_rec, vector <char> &cha_rec, vector <string> &ind_rec, vector <double> &min_rec)
+	vector <int> &pos_rec, vector <char> &cha_rec, vector <string> &ind_rec, vector <double> &min_rec, int &atom_num)
 {
 	int i;
 	int pl=(int)protein.size();
@@ -614,9 +630,11 @@ int Compare_Ligand_and_Chain_Complex(vector <PDB_Residue> &protein, vector <XYZ>
 	ind_rec.clear();
 	min_rec.clear();
 	int count=0;
+	int cur_atom;
+	atom_num=0;
 	for(i=0;i<pl;i++)
 	{
-		dist2=Residue_Ligand_Distance(protein[i], ligand);
+		dist2=Residue_Ligand_Distance(protein[i], ligand, r_cut, cur_atom);
 		if(dist2<thres2)
 		{
 			pos_rec.push_back(i);
@@ -630,6 +648,7 @@ int Compare_Ligand_and_Chain_Complex(vector <PDB_Residue> &protein, vector <XYZ>
 			ind_rec.push_back(ind_);
 			min_rec.push_back(sqrt(dist2));
 			count++;
+			atom_num+=cur_atom;
 		}
 	}
 	//return
@@ -665,7 +684,9 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		string atom_name=atomname;
 		string pdbind_;
 		PDB.get_PDB_residue_number(pdbind_);
-		string posi_rel=pdbind_.substr(1,5);
+		string posi_rel;
+		Kill_Space(pdbind_,posi_rel);
+		if(Check_Ins(posi_rel)!=1)posi_rel.push_back(' ');
 		PDB.get_backbone_atom(k,xyz, numb, rfactor, temperature);
 		//record as point-cloud
 		pc.push_back(xyz);
@@ -706,7 +727,9 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		string atom_name=atomname;
 		string pdbind_;
 		PDB.get_PDB_residue_number(pdbind_);
-		string posi_rel=pdbind_.substr(1,5);
+		string posi_rel;
+		Kill_Space(pdbind_,posi_rel);
+		if(Check_Ins(posi_rel)!=1)posi_rel.push_back(' ');
 		PDB.get_sidechain_atom(k,xyz, numb, rfactor, temperature);
 		//record as point-cloud
 		pc.push_back(xyz);
@@ -861,7 +884,7 @@ void Output_File_PC(FILE *fp,
 {
 	for(long i=0;i<(long)pc.size();i++)
 	{
-		fprintf(fp,"%5s %c%c%c %8.3f %8.3f %8.3f %c %5.2f %3d\n",
+		fprintf(fp,"%6s %c%c%c %8.3f %8.3f %8.3f %c %5.2f %3d\n",
 			posi[i].c_str(),resi[i],atom[i][0],atom_lab[i]+'a',pc[i].X,pc[i].Y,pc[i].Z,label[i],bfac[i],pacc[i]);
 	}
 }
@@ -1193,9 +1216,10 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			vector <char> cha_rec;
 			vector <string> ind_rec;
 			vector <double> min_rec;
-			int count=Compare_Ligand_and_Chain_Complex(pdb,ligands[j].lig_xyz,r_cut,pos_rec,cha_rec,ind_rec,min_rec);
+			int atom_count=0;
+			int count=Compare_Ligand_and_Chain_Complex(pdb,ligands[j].lig_xyz,r_cut,pos_rec,cha_rec,ind_rec,min_rec,atom_count);
 			//output ligand_log
-			if(LOG_OR_NOT==1 && count>=LG_MINCUT)
+			if(LOG_OR_NOT==1 && count>=LG_MINCUT && atom_count>=LG_ATOMCUT)
 			{
 				if(ligand_log_first==1)
 				{

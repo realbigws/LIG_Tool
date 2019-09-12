@@ -513,7 +513,7 @@ void XYZ_To_PDB(string &xyz_file, FILE *fp,
 	double bfactor=0;
 	int atom_num=1;
 	if(atom_start>=0)atom_num=atom_start;
-	char rel_chain=chain;
+	char rel_chain;
 	for(int i=0;i<moln;i++)
 	{
 		const char* resi_name;
@@ -526,12 +526,18 @@ void XYZ_To_PDB(string &xyz_file, FILE *fp,
 			if(atom_lab<4) atom_name=WWW_backbone_atom_name_decode(atom_lab);
 			else atom_name=WWW_sidechain_atom_name_decode(atom_lab-4, str[i][j][0]);
 			bfactor=bfac[i][j];
-			if(resi_start<0)resi_str=resi[i];
+			if(resi_start<0)resi_str=resi[i].substr(1,resi[i].length()-1);
 			else
 			{
 				resi_str=NumberToString(resi_start+i);
 				resi_str.push_back(' ');
 			}
+			if(chain==' ')
+			{
+				if(resi[i][0]>='0'&&resi[i][0]<='9')rel_chain=chain;
+				else rel_chain=resi[i][0];
+			}
+			else rel_chain=chain;
 			fprintf(fp,"ATOM  %5d %4s %3s %c%5s   %8.3f%8.3f%8.3f%6.2f%6.2f      %c    %c  \n",
 				atom_num,atom_name,resi_name,rel_chain,resi_str.c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],rfactor,bfactor,
@@ -557,7 +563,7 @@ void Usage()
 	fprintf(stderr,"                       or, set the starting atom (1-base). \n\n");
 	fprintf(stderr,"-b bfac_col :          Default: set -1 to CANCEL output bfactor columns, \n");
 	fprintf(stderr,"                       or, specify a column (1-base) to output bfactor (e.g., 7)\n\n");
-	fprintf(stderr,"-c chain :             Default: set ' ' for the chain identifier. \n");
+	fprintf(stderr,"-c chain :             Default: use origianl chain identifier. \n");
 	fprintf(stderr,"                       or, specify a given chain identifier. \n\n");
 }
 

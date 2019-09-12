@@ -319,7 +319,7 @@ void Output_PointCloud_AtomLevel(FILE *fp,
 		//output to file
 		for(int j=0;j<len;j++)
 		{
-			fprintf(fp,"%5s %3s %8.3f %8.3f %8.3f %1d %s\n",
+			fprintf(fp,"%6s %3s %8.3f %8.3f %8.3f %1d %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
 				atom_rec[j],remain[i][j].c_str());
@@ -340,7 +340,7 @@ void Output_PointCloud_ResiLevel(FILE *fp,
 		//output to file
 		for(int j=0;j<(int)xyz[i].size();j++)
 		{
-			fprintf(fp,"%5s %3s %8.3f %8.3f %8.3f %1d %s\n",
+			fprintf(fp,"%6s %3s %8.3f %8.3f %8.3f %1d %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
 				binding_rec[i],remain[i][j].c_str());
