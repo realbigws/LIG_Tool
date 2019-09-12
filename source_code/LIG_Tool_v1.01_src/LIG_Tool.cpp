@@ -19,11 +19,11 @@ void print_help_msg(void)
 	cout << "========================================================|" << endl;
 	cout << "LIG_Tool  (version 1.05) [2019.09.12]                   |" << endl;
 	cout << "    Extract ligands and chains from official PDB file   |" << endl;
-	cout << "Usage:   ./LIG_Tool <-i input_pdb> [-o out_name]        |" << endl;
-	cout << "         [-p chain_out_root] [-q ligand_out_root]       |" << endl;
-	cout << "         [-n length_cut] [-d distance_cut] [-l log]     |" << endl;
-	cout << "         [-O PC_out] [-T PC_type] [-t LG_type]          |" << endl;
-	cout << "         [-f filter] [-m mincut] [-M atomcut]           |" << endl;
+	cout << "Usage: ./LIG_Tool <-i input_pdb> [-o out_name]          |" << endl;
+	cout << "       [-p chain_out_root] [-q ligand_out_root]         |" << endl;
+	cout << "       [-n length_cut] [-d distance_cut] [-l log]       |" << endl;
+	cout << "       [-O PC_out] [-T PC_type] [-t LG_type]            |" << endl;
+	cout << "       [-f filter] [-m mincut] [-M atomcut] [-N minnum] |" << endl;
 	cout << "--------------------------------------------------------|" << endl;
 	cout << "-i input_pdb : input original PDB file, e.g., 1col.pdb  |" << endl;
 	cout << "-o out_name  : output file name. [default: input_name]  |" << endl;
@@ -38,7 +38,7 @@ void print_help_msg(void)
 	cout << "-f filter  : list for filtered ligands. [default:null]  |" << endl;
 	cout << "-m mincut  : min_num of binding residues. [default:1]   |" << endl;
 	cout << "-M atomcut : min_num of binding atoms. [default:1]      |" << endl;
-	cout << "-n minnum  : min_num of the ligand atoms. [default:1]   |" << endl;
+	cout << "-N minnum  : min_num of the ligand atoms. [default:1]   |" << endl;
 	cout << "========================================================|" << endl;
 	exit(-1);
 }
