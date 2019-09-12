@@ -38,6 +38,7 @@ void print_help_msg(void)
 	cout << "-f filter  : list for filtered ligands. [default:null]  |" << endl;
 	cout << "-m mincut  : min_num of binding residues. [default:1]   |" << endl;
 	cout << "-M atomcut : min_num of binding atoms. [default:1]      |" << endl;
+	cout << "-n minnum  : min_num of the ligand atoms. [default:1]   |" << endl;
 	cout << "========================================================|" << endl;
 	exit(-1);
 }
@@ -55,6 +56,7 @@ string LG_TYPE="IOPNX";     //default: ALL possible ligand type
 string LG_FILTER="";        //filtered ligands (default: null)
 int LG_MINCUT=1;            //minimal number of ligand binding residues (default:1)
 int LG_ATOMCUT=1;           //minimal number of ligand binding atoms (default:1)
+int LG_MINNUM=1;            //minimal number of the ligand atoms (default:1)
 
 //-----------------------------------------------------------------------------------------------------------//
 //---- parameter editor ----//
@@ -73,6 +75,7 @@ static option long_options[] =
 	{"LGfilt",  no_argument,       NULL, 'f'},
 	{"LGmin",   no_argument,       NULL, 'm'},
 	{"ATmin",   no_argument,       NULL, 'M'},
+	{"LGnum",   no_argument,       NULL, 'N'},
 	{0, 0, 0, 0}
 };
 //-----------------------------------------------------------------------------------------------------------//
@@ -85,7 +88,7 @@ void process_args(int argc,char** argv)
 	while(true) 
 	{
 		int option_index=0;
-		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:f:m:M:",
+		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:f:m:M:N:",
 			   long_options,&option_index);
 		if (opt==-1)break;	
 		switch(opt) 
@@ -128,6 +131,9 @@ void process_args(int argc,char** argv)
 				break;
 			case 'M':
 				LG_ATOMCUT=atoi(optarg);
+				break;
+			case 'N':
+				LG_MINNUM=atoi(optarg);
 				break;
 			default:
 				exit(-1);
@@ -1104,6 +1110,7 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 	retv=PDB_Extract_Ligand(file,ligands);
 	if(retv<0)return 0; //failed
 
+	//======================== filter ligands according to instructions ======================//start
 	//--- filter-out ligands ----//type
 	if(LG_TYPE!="")
 	{
@@ -1129,6 +1136,19 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 		Filter_Ligands(LG_FILTER,ligands,ligands_filter);
 		ligands=ligands_filter;
 	}
+	//--- filter-out ligands ----//number
+	if(LG_MINNUM>1)
+	{
+		vector <Ligand_Struc> ligands_filter;
+		for(int i=0;i<(int)ligands.size();i++)
+		{
+			if(ligands[i].lig_moln < LG_MINNUM)continue;
+			ligands_filter.push_back(ligands[i]);
+		}
+		ligands=ligands_filter;
+	}
+	//======================== filter ligands according to instructions ======================//end
+
 	//--- output ligand ----//
 	{
 		for(int i=0;i<(int)ligands.size();i++)
