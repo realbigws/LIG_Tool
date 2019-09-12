@@ -3,7 +3,7 @@
 # ----- usage ------ #
 function usage()
 {
-	echo "multi_ligand_dump v0.10 [Sep-07-2019] "
+	echo "multi_ligand_dump (protein-level) v0.10 [Sep-07-2019] "
 	echo "    A simple script to dump '0,1,2,..' ligand labels in XYZ format"
 	echo ""
 	echo "USAGE:  ./multi_ligand_dump.sh <-i in_list> <-o out_root> <-r lig_root> " 
@@ -11,7 +11,7 @@ function usage()
 	echo "Options:"
 	echo ""
 	echo "***** required arguments *****"
-	echo "-i in_list        : Input PDB list in 1pdbA format. "
+	echo "-i in_list        : Input PDB list in 1pdb format. "
 	echo ""
 	echo "-o out_root       : Output root for dumped XYZ files. "
 	echo ""
@@ -145,29 +145,33 @@ mkdir -p $out
 #---- process -------#
 for i in `cat $list`;
 do
-	id=${i:0:4};
+	#--- cat all chains into a complex ---#
+	rm -f $i.pdb_protein;
+	for k in `awk '{print $1}' $lig/$i.chain_log`;
+	do
+		cat $lig/$k.pdb >> $i.pdb_protein;
+	done;
+	$home/PDB_To_XYZ -i $i.pdb_protein -o $i.xyz_protein;
+	rm -f $i.pdb_protein;
+
+	#--- cat all ligands into a complex ---#
 	rm -f $i.xyz_lig;
 	rm -f $i.ligand;
 	count=1;
-	for k in `grep \^${i} $lig/$id.ligand_log | awk '{print $1}'`;
+	for k in `awk '{print $1}' $lig/$i.ligand_size`;
 	do
-		a=${k:0:4};
 		b=${k:5:9};
-		$home/PDB_To_XYZ -i $lig/"$a$b".pdb -o $i.xyz_ -f $count;
+		$home/PDB_To_XYZ -i $lig/$k.pdb -o $k.xyz -f $count;
 		((count++));
-		cat $i.xyz_ >> $i.xyz_lig;
+		cat $k.xyz >> $i.xyz_lig;
 		echo $b >> $i.ligand;
-		rm -f $i.xyz_;
+		rm -f $k.xyz;
 	done;
-	if [ -s "$lig/$i.pc_xyz" ]  #-> use already exist pc_xyz file
-	then
-		$home/XYZ_ContResi $lig/$i.pc_xyz $i.xyz_lig $distance_cut $out/${i}_atom.xyz 1 > $out/${i}_resi;
-	else                        #-> create xyz file from PDB file
-		$home/PDB_To_XYZ -i $lig/$i.pdb -o $i.xyz_atom;
-		$home/XYZ_ContResi $i.xyz_atom $i.xyz_lig $distance_cut $out/${i}_atom.xyz 1 > $out/${i}_resi;
-	fi
+
+	#--- call XYZ_ContResi -----#
+	$home/XYZ_ContResi $i.xyz_protein $i.xyz_lig $distance_cut $out/${i}_atom.xyz 1 > $out/${i}_resi;
 	rm -f $i.xyz_lig;
-	rm -f $i.xyz_atom
+	rm -f $i.xyz_protein;
 	mv $i.ligand $out;
 done
 
