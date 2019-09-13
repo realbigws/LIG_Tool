@@ -151,7 +151,7 @@ do
 	do
 		cat $lig/$k.pdb >> $i.pdb_protein;
 	done;
-	$home/PDB_To_XYZ -i $i.pdb_protein -o $i.xyz_protein;
+	$home/PDB_To_XYZ -i $i.pdb_protein -o $i.xyz_protein -a 1;
 	rm -f $i.pdb_protein;
 
 	#--- cat all ligands into a complex ---#

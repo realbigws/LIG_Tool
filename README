@@ -116,7 +116,7 @@ Running example:
 ./LIG_Tool -i examples/1paz.pdb -l 1
 
 #-> label point-cloud at ligand-level
-util/PDB_To_XYZ -i 1pazA.pdb -o 1pazA.xyz
+util/PDB_To_XYZ -i 1pazA.pdb -o 1pazA.xyz -a 1
 util/PDB_To_XYZ -i 1paz_CU__0___.pdb -o 1paz_CU__0___.xyz -f 1
 util/XYZ_ContResi 1pazA.xyz 1paz_CU__0___.xyz 6.5 1pazA.pc_xyz 1
 
