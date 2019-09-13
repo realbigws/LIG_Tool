@@ -66,6 +66,14 @@ int Check_Ins(string &in)
 	if(in[i]>='0'&&in[i]<='9')return 0;
 	else return 1;
 }
+//----- check chain_code ------//
+int Check_Chain(string &in)
+{
+	int i=0;
+	if(in[i]=='|')return 0;  //-> null chain
+	else return 1;
+}
+
 
 //----------- SideChain_Related ------------//
 //function (input three-digit atom)
@@ -494,9 +502,13 @@ void PDB_To_XYZ(string &pdb,FILE *fp,
 				resi_str=NumberToString(resi_start+resi_num);
 			}
 		}
-		string resi_str_=chain+resi_str;
+		//-> reformat to A|123 style //-> start
+		string resi_str_="";
+		resi_str_.push_back(chain);
+		resi_str_=resi_str_+"|"+resi_str;
 		Kill_Space(resi_str_,resi_str);
 		if(Check_Ins(resi_str)!=1)resi_str.push_back(' ');
+		if(Check_Chain(resi_str)==0)resi_str=" "+resi_str;
 		//atom
 		char atom_char='!';
 		if(type=="ATOM"&&c!='X')
@@ -529,12 +541,12 @@ void PDB_To_XYZ(string &pdb,FILE *fp,
 		//output
 		if(addi_columns<0)
 		{
-			fprintf(fp,"%6s %c%c%c %8.3f %8.3f %8.3f \n",
+			fprintf(fp,"%7s %c%c%c %8.3f %8.3f %8.3f \n",
 				resi_str.c_str(),c,h,atom_char,x,y,z);
 		}
 		else
 		{
-			fprintf(fp,"%6s %c%c%c %8.3f %8.3f %8.3f 0 %5.2f \n",
+			fprintf(fp,"%7s %c%c%c %8.3f %8.3f %8.3f 0 %5.2f \n",
 				resi_str.c_str(),c,h,atom_char,x,y,z,bfactor);
 		}
 	}

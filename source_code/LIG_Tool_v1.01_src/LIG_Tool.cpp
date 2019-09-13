@@ -608,6 +608,8 @@ double Residue_Ligand_Distance(PDB_Residue & PDB, vector <XYZ> &ligand, double t
 	//return
 	return minval;
 }
+
+//--------- misc functions --------//start
 void Kill_Space(string &in,string &out)
 {
 	int i;
@@ -623,6 +625,14 @@ int Check_Ins(string &in)
 	if(in[i]>='0'&&in[i]<='9')return 0;
 	else return 1;
 }
+int Check_Chain(string &in)
+{
+	int i=0;
+	if(in[i]=='|')return 0;  //-> null chain
+	else return 1;
+}
+//--------- misc functions --------//end
+
 int Compare_Ligand_and_Chain_Complex(vector <PDB_Residue> &protein, vector <XYZ> &ligand,double r_cut, 
 	vector <int> &pos_rec, vector <char> &cha_rec, vector <string> &ind_rec, vector <double> &min_rec, int &atom_num)
 {
@@ -689,10 +699,17 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		const char *atomname=backbone_atom_name_decode(k);
 		string atom_name=atomname;
 		string pdbind_;
-		PDB.get_PDB_residue_number(pdbind_);
 		string posi_rel;
-		Kill_Space(pdbind_,posi_rel);
+		PDB.get_PDB_residue_number(pdbind_);
+		//-> reformat to A|123 style //-> start
+		string chain="";
+		chain.push_back(pdbind_[0]);
+		string resi_prev=pdbind_.substr(1,pdbind_.length()-1);
+		string posi_=chain+"|"+resi_prev;
+		Kill_Space(posi_,posi_rel);
 		if(Check_Ins(posi_rel)!=1)posi_rel.push_back(' ');
+		if(Check_Chain(posi_rel)==0)posi_rel=" "+posi_rel;
+		//-> reformat to A|123 style //-> end
 		PDB.get_backbone_atom(k,xyz, numb, rfactor, temperature);
 		//record as point-cloud
 		pc.push_back(xyz);
@@ -732,10 +749,17 @@ void Residue_Ligand_Distance_PC(PDB_Residue &PDB, int posi_val, int pacc_val, ve
 		const char *atomname=sidechain_atom_name_decode(k,amino);
 		string atom_name=atomname;
 		string pdbind_;
-		PDB.get_PDB_residue_number(pdbind_);
 		string posi_rel;
-		Kill_Space(pdbind_,posi_rel);
+		PDB.get_PDB_residue_number(pdbind_);
+		//-> reformat to A|123 style //-> start
+		string chain="";
+		chain.push_back(pdbind_[0]);
+		string resi_prev=pdbind_.substr(1,pdbind_.length()-1);
+		string posi_=chain+"|"+resi_prev;
+		Kill_Space(posi_,posi_rel);
 		if(Check_Ins(posi_rel)!=1)posi_rel.push_back(' ');
+		if(Check_Chain(posi_rel)==0)posi_rel=" "+posi_rel;
+		//-> reformat to A|123 style //-> end
 		PDB.get_sidechain_atom(k,xyz, numb, rfactor, temperature);
 		//record as point-cloud
 		pc.push_back(xyz);
@@ -890,7 +914,7 @@ void Output_File_PC(FILE *fp,
 {
 	for(long i=0;i<(long)pc.size();i++)
 	{
-		fprintf(fp,"%6s %c%c%c %8.3f %8.3f %8.3f %c %5.2f %3d\n",
+		fprintf(fp,"%7s %c%c%c %8.3f %8.3f %8.3f %c %5.2f %3d\n",
 			posi[i].c_str(),resi[i],atom[i][0],atom_lab[i]+'a',pc[i].X,pc[i].Y,pc[i].Z,label[i],bfac[i],pacc[i]);
 	}
 }
@@ -1206,6 +1230,7 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 		pdb_chain=chains[i];
 		moln=pdb_chain.get_length();
 		chain=pdb_chain.get_chain_id();
+		if(chain==" ")chain="_";
 		//length check
 		if(moln<len_cut)continue;
 		//assign
@@ -1315,6 +1340,7 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			pdb_chain=chains[i];
 			moln=pdb_chain.get_length();
 			chain=pdb_chain.get_chain_id();
+			if(chain==" ")chain="_";
 			//length check
 			if(moln<len_cut)continue;
 			//assign

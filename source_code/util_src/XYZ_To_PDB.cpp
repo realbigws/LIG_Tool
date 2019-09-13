@@ -108,6 +108,14 @@ int Check_Ins(string &in)
 	if(in[i]>='0'&&in[i]<='9')return 0;
 	else return 1;
 }
+//----- check chain_code ------//
+int Check_Chain(string &in)
+{
+	int i=0;
+	if(in[i]=='|')return 0;  //-> null chain
+	else return 1;
+}
+
 //--------- load XYZ with Bfactor ----------//
 int Load_XYZ_Bfactor(string &fn, int bfac_col,
 	vector <vector <vector <double> > > &xyz,
@@ -151,6 +159,8 @@ int Load_XYZ_Bfactor(string &fn, int bfac_col,
 		temp=tmp_rec[0];
 		//check ins_code
 		if(Check_Ins(temp)!=1)temp.push_back(' ');
+		//check chain_code
+		if(Check_Chain(temp)==0)temp=" "+temp;
 		//record first
 		if(first==1)
 		{
@@ -535,7 +545,7 @@ void XYZ_To_PDB(string &xyz_file, FILE *fp,
 				else atom_name=WWW_sidechain_atom_name_decode(atom_lab-4, str[i][j][0]);
 			}
 			bfactor=bfac[i][j];
-			if(resi_start<0)resi_str=resi[i].substr(1,resi[i].length()-1);
+			if(resi_start<0)resi_str=resi[i].substr(2,resi[i].length()-2);
 			else
 			{
 				resi_str=NumberToString(resi_start+i);

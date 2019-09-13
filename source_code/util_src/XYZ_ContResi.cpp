@@ -65,6 +65,14 @@ int Check_Ins(string &in)
 	if(in[i]>='0'&&in[i]<='9')return 0;
 	else return 1;
 }
+//----- check chain_code ------//
+int Check_Chain(string &in)
+{
+	int i=0;
+	if(in[i]=='|')return 0;  //-> null chain
+	else return 1;
+}
+
 
 //--------- load XYZ ----------//
 void Load_XYZ(string &fn,vector <vector <vector <double> > > &xyz,
@@ -98,6 +106,8 @@ void Load_XYZ(string &fn,vector <vector <vector <double> > > &xyz,
 		www>>temp;
 		//check ins_code
 		if(Check_Ins(temp)!=1)temp.push_back(' ');
+		//check chain_code
+		if(Check_Chain(temp)==0)temp=" "+temp;
 		//record first
 		if(first==1)
 		{
@@ -319,7 +329,7 @@ void Output_PointCloud_AtomLevel(FILE *fp,
 		//output to file
 		for(int j=0;j<len;j++)
 		{
-			fprintf(fp,"%6s %3s %8.3f %8.3f %8.3f %1d %s\n",
+			fprintf(fp,"%7s %3s %8.3f %8.3f %8.3f %1d %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
 				atom_rec[j],remain[i][j].c_str());
@@ -340,7 +350,7 @@ void Output_PointCloud_ResiLevel(FILE *fp,
 		//output to file
 		for(int j=0;j<(int)xyz[i].size();j++)
 		{
-			fprintf(fp,"%6s %3s %8.3f %8.3f %8.3f %1d %s\n",
+			fprintf(fp,"%7s %3s %8.3f %8.3f %8.3f %1d %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
 				binding_rec[i],remain[i][j].c_str());

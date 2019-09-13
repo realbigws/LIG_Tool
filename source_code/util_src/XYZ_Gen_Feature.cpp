@@ -552,6 +552,14 @@ int Check_Ins(string &in)
 	if(in[i]>='0'&&in[i]<='9')return 0;
 	else return 1;
 }
+//----- check chain_code ------//
+int Check_Chain(string &in)
+{
+	int i=0;
+	if(in[i]=='|')return 0;  //-> null chain
+	else return 1;
+}
+
 //--------- load XYZ ----------//
 void Load_XYZ_Label(string &fn,vector <vector <vector <double> > > &xyz,
 	vector <vector <string> > &str, vector <vector <string> > &lab,
@@ -586,6 +594,8 @@ void Load_XYZ_Label(string &fn,vector <vector <vector <double> > > &xyz,
 		www>>temp;
 		//check ins_code
 		if(Check_Ins(temp)!=1)temp.push_back(' ');
+		//check chain_code
+		if(Check_Chain(temp)==0)temp=" "+temp;
 		//record first
 		if(first==1)
 		{
@@ -669,7 +679,7 @@ void XYZ_Gen_Feature(string &in, string &out,
 			}
 			string wsbuf=oss.str();
 			//output to file
-			fprintf(fp,"%6s %3s %8.3f %8.3f %8.3f %s %s %5.2f %s\n",
+			fprintf(fp,"%7s %3s %8.3f %8.3f %8.3f %s %s %5.2f %s\n",
 				resi[i].c_str(),str[i][j].c_str(),
 				xyz[i][j][0],xyz[i][j][1],xyz[i][j][2],
 				lab[i][j].c_str(),remain[i][j].c_str(),
