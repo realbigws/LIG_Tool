@@ -166,8 +166,8 @@ do
 		$home/PDB_To_XYZ -i $lig/$i.pdb -o $i.xyz_atom -a 1;
 		$home/XYZ_ContResi $i.xyz_atom $i.xyz_lig $distance_cut $out/${i}_atom.xyz 1 > $out/${i}_resi;
 	fi
-	rm -f $i.xyz_lig;
-	rm -f $i.xyz_atom
+	rm -f $i.xyz_atom;
+	mv $i.xyz_lig $out/${i}_lig.xyz;
 	mv $i.ligand $out;
 done
 

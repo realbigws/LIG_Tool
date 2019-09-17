@@ -170,8 +170,8 @@ do
 
 	#--- call XYZ_ContResi -----#
 	$home/XYZ_ContResi $i.xyz_protein $i.xyz_lig $distance_cut $out/${i}_atom.xyz 1 > $out/${i}_resi;
-	rm -f $i.xyz_lig;
 	rm -f $i.xyz_protein;
+	mv $i.xyz_lig $out/${i}_lig.xyz;
 	mv $i.ligand $out;
 done
 
