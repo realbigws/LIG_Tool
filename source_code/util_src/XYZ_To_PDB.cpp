@@ -532,12 +532,22 @@ void XYZ_To_PDB(string &xyz_file, FILE *fp,
 		for(int j=0;j<(int)xyz[i].size();j++)
 		{
 			resi_name=WWW_One2Three_III(str[i][j][0]);
-			if(resi_name=="UNK" && str[i][j][2]=='!')
+			if(resi_name=="UNK" || str[i][j][2]=='!')
 			{
-				if(j<4)atom_name=WWW_backbone_atom_name_decode(j);
-				else if(j==4)atom_name="CB ";
+				if(str[i][j][2]!='!')
+				{
+					int atom_lab=str[i][j][2]-'a';
+					if(atom_lab<4) atom_name=WWW_backbone_atom_name_decode(atom_lab);
+					else if(atom_lab==4)atom_name="CB ";
+					else continue;
+				}
+				else
+				{
+					if(j<4)atom_name=WWW_backbone_atom_name_decode(j);
+					else if(j==4)atom_name="CB ";
+					else continue;
+				}
 			}
-			else if(resi_name=="UNK" || str[i][j][2]=='!')continue;
 			else
 			{
 				int atom_lab=str[i][j][2]-'a';
@@ -570,7 +580,7 @@ void XYZ_To_PDB(string &xyz_file, FILE *fp,
 //---------- usage ---------//
 void Usage()
 {
-	fprintf(stderr,"Version: 0.98 \n");
+	fprintf(stderr,"Version: 1.00 \n");
 	fprintf(stderr,"XYZ_To_PDB -i xyz_input -o pdb_output [-s resi_start] [-S atom_start] [-b bfac_col] \n");
 	fprintf(stderr,"                         [-c chain] \n\n");
 	fprintf(stderr,"Usage : \n\n");
