@@ -145,14 +145,34 @@ mkdir -p $out
 #---- process -------#
 for i in `cat $list`;
 do
-	#--- cat all chains into a complex ---#
-	rm -f $i.pdb_protein;
+	#--- check XYZ files in the lig/ folder ---#
+	has_xyz=1;
 	for k in `awk '{print $1}' $lig/$i.chain_log`;
 	do
-		cat $lig/$k.pdb >> $i.pdb_protein;
+		if [ ! -s "$lig/$k.pc_xyz" ]  #-> use already exist pc_xyz file
+		then
+			has_xyz=0;
+		fi
+		cat $lig/$k.pc_xyz >> $i.xyz_protein;
 	done;
-	$home/PDB_To_XYZ -i $i.pdb_protein -o $i.xyz_protein -a 1;
-	rm -f $i.pdb_protein;
+
+	#--- cat all chains into a complex ---#
+	if [ $has_xyz -eq 1 ]
+	then
+		rm -f $i.xyz_protein;
+		for k in `awk '{print $1}' $lig/$i.chain_log`;
+		do
+			cat $lig/$k.pc_xyz >> $i.xyz_protein;
+		done;
+	else
+		rm -f $i.pdb_protein;
+		for k in `awk '{print $1}' $lig/$i.chain_log`;
+		do
+			cat $lig/$k.pdb >> $i.pdb_protein;
+		done;
+		$home/PDB_To_XYZ -i $i.pdb_protein -o $i.xyz_protein -a 1;
+		rm -f $i.pdb_protein;
+	fi
 
 	#--- cat all ligands into a complex ---#
 	rm -f $i.xyz_lig;
