@@ -106,7 +106,7 @@ Running example:
 
 5. filter a given ligand
 
-./LIG_Tool -i examples/1paz.pdb -l 1 -f filt
+./LIG_Tool -i examples/1paz.pdb -l 1 -f examples/filt
 
 ----------------------------------
 
