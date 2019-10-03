@@ -17,21 +17,22 @@ using namespace std;
 void print_help_msg(void) 
 {
 	cout << "========================================================|" << endl;
-	cout << "LIG_Tool  (version 1.05) [2019.09.12]                   |" << endl;
+	cout << "LIG_Tool  (version 1.06) [2019.10.03]                   |" << endl;
 	cout << "    Extract ligands and chains from official PDB file   |" << endl;
 	cout << "Usage: ./LIG_Tool <-i input_pdb> [-o out_name]          |" << endl;
-	cout << "       [-p chain_out_root] [-q ligand_out_root]         |" << endl;
+	cout << "       [-p chain_root] [-q ligand_root] [-L log_root]   |" << endl;
 	cout << "       [-n length_cut] [-d distance_cut] [-l log]       |" << endl;
 	cout << "       [-O PC_out] [-T PC_type] [-t LG_type]            |" << endl;
 	cout << "       [-f filter] [-m mincut] [-M atomcut] [-N minnum] |" << endl;
 	cout << "--------------------------------------------------------|" << endl;
 	cout << "-i input_pdb : input original PDB file, e.g., 1col.pdb  |" << endl;
 	cout << "-o out_name  : output file name. [default: input_name]  |" << endl;
-	cout << "-p chain_out_root : chain output root [default: ./ ]    |" << endl;
-	cout << "-q ligand_out_root: ligand output root [default: ./ ]   |" << endl;
-	cout << "-n length_cut : chain length cutoff [default: 25 ]      |" << endl;
-	cout << "-d distance_cut : ligand distance cutoff [default: 4.0] |" << endl;
+	cout << "-p chain_root  : chain output root [default: ./ ]       |" << endl;
+	cout << "-q ligand_root : ligand output root [default: ./ ]      |" << endl;
+	cout << "-n length_cut  : chain length cutoff [default: 25 ]     |" << endl;
+	cout << "-d distance_cut: ligand distance cutoff [default: 4.0]  |" << endl;
 	cout << "-l log : output log files (1) or not (0) [default: 0]   |" << endl;
+	cout << "-L log_root: log output root [default:null]             |" << endl;
 	cout << "-O PC_root : binding residues in PC [default:null]      |" << endl;
 	cout << "-T PC_type : CA+CB (-1), backbone+CB [0], full atom (1) |" << endl;
 	cout << "-t LG_type : select ligand type. [ default: 'IOPNX']    |" << endl;
@@ -50,6 +51,7 @@ string LIGAND_OUTROOT="./"; //ligand output root
 int LENGTH_CUT=25;          //chain length cutoff
 double DISTANCE_CUT=4.0;    //ligand distance cutoff
 int LOG_OR_NOT=0;           //default: don't output log
+string LOG_ROOT="";         //log output root
 string PC_ROOT="";          //point cloud output root
 int PC_TYPE=0;              //default: backbone+CB
 string LG_TYPE="IOPNX";     //default: ALL possible ligand type
@@ -69,6 +71,7 @@ static option long_options[] =
 	{"length",  no_argument,       NULL, 'n'},
 	{"dist",    no_argument,       NULL, 'd'},
 	{"log",     no_argument,       NULL, 'l'},
+	{"LOGroot", no_argument,       NULL, 'L'},
 	{"PCroot",  no_argument,       NULL, 'O'},
 	{"PCtype",  no_argument,       NULL, 'T'},
 	{"LGtype",  no_argument,       NULL, 't'},
@@ -88,7 +91,7 @@ void process_args(int argc,char** argv)
 	while(true) 
 	{
 		int option_index=0;
-		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:O:T:t:f:m:M:N:",
+		opt=getopt_long(argc,argv,"i:o:p:q:n:d:l:L:O:T:t:f:m:M:N:",
 			   long_options,&option_index);
 		if (opt==-1)break;	
 		switch(opt) 
@@ -113,6 +116,9 @@ void process_args(int argc,char** argv)
 				break;
 			case 'l':
 				LOG_OR_NOT=atoi(optarg);
+				break;
+			case 'L':
+				LOG_ROOT=optarg;
 				break;
 			case 'O':
 				PC_ROOT=optarg;
@@ -1109,7 +1115,7 @@ void Filter_Ligands(string &infile,
 //[note]: len_cut -> for pdb_chain
 //        r_cut   -> for ligand
 int PDB_Ligand_All_Process(string &file,string &out_name,
-	string &pdb_out_dir,string &ligand_out_dir,string &pc_out_dir,
+	string &pdb_out_dir,string &ligand_out_dir,string &log_out_dir,string &pc_out_dir,
 	int len_cut,double r_cut)
 {
 	//class
@@ -1188,7 +1194,7 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 		}
 		if(LOG_OR_NOT==1 && (int)ligands.size()>0)
 		{
-			string log_file=out_name+".ligand_size";
+			string log_file=log_out_dir+"/"+out_name+".ligand_size";
 			FILE *f2=fopen(log_file.c_str(),"wb");
 			for(int i=0;i<(int)ligands.size();i++)
 			{
@@ -1269,10 +1275,10 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 				if(ligand_log_first==1)
 				{
 					ligand_log_first=0;
-					log_file=out_name+".ligand_log";
+					log_file=log_out_dir+"/"+out_name+".ligand_log";
 					f2=fopen(log_file.c_str(),"wb");
 					fprintf(f2,">%s\n",out_name.c_str());
-					log_file=out_name+".ligand_chain";
+					log_file=log_out_dir+"/"+out_name+".ligand_chain";
 					f3=fopen(log_file.c_str(),"wb");
 				}
 				cur_nam=out_name+chain+"_"+ligands[j].lig_name;
@@ -1299,11 +1305,11 @@ int PDB_Ligand_All_Process(string &file,string &out_name,
 			if(chain_log_first==1)
 			{
 				chain_log_first=0;
-				log_file=out_name+".chain_log";
+				log_file=log_out_dir+"/"+out_name+".chain_log";
 				f1=fopen(log_file.c_str(),"wb");
-				log_file=out_name+".atom_seq";
+				log_file=log_out_dir+"/"+out_name+".atom_seq";
 				f4=fopen(log_file.c_str(),"wb");
-				log_file=out_name+".atom_ind";
+				log_file=log_out_dir+"/"+out_name+".atom_ind";
 				f5=fopen(log_file.c_str(),"wb");
 			}
 			fprintf(f1,"%s %4d\n",cur_nam.c_str(),moln);
@@ -1445,6 +1451,7 @@ int main(int argc, char** argv)
 		string out_name=OUTPUT_NAME;
 		string pdb_out_root=CHAIN_OUTROOT;
 		string ligand_out_root=LIGAND_OUTROOT;
+		string log_out_root=LOG_ROOT;
 		string point_cloud_root=PC_ROOT;
 		//create output
 		char command[30000];
@@ -1452,6 +1459,11 @@ int main(int argc, char** argv)
 		system(command);
 		sprintf(command,"mkdir -p %s",ligand_out_root.c_str());
 		system(command);
+		if(log_out_root!="")
+		{
+			sprintf(command,"mkdir -p %s",log_out_root.c_str());
+			system(command);
+		}
 		if(point_cloud_root!="")
 		{
 			sprintf(command,"mkdir -p %s",point_cloud_root.c_str());
@@ -1460,7 +1472,8 @@ int main(int argc, char** argv)
 		//process
 		int len_cut=LENGTH_CUT;
 		double distance_cut=DISTANCE_CUT;
-		PDB_Ligand_All_Process(input_pdb,out_name,pdb_out_root,ligand_out_root,point_cloud_root,
+		PDB_Ligand_All_Process(input_pdb,out_name,
+			pdb_out_root,ligand_out_root,log_out_root,point_cloud_root,
 			len_cut,distance_cut);
 		exit(0);
 	}
