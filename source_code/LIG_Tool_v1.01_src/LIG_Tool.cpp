@@ -1453,6 +1453,11 @@ int main(int argc, char** argv)
 		string ligand_out_root=LIGAND_OUTROOT;
 		string log_out_root=LOG_ROOT;
 		string point_cloud_root=PC_ROOT;
+		//debug
+		if(LOG_OR_NOT==1)
+		{
+			if(log_out_root=="")log_out_root="./";
+		}
 		//create output
 		char command[30000];
 		sprintf(command,"mkdir -p %s",pdb_out_root.c_str());
